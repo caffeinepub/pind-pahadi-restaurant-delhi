@@ -1,0 +1,17 @@
+{
+  "frontend/src/index.css": "Global styles with Punjabi earthy color palette (rustic brown, mustard yellow, warm red, cream) using OKLCH tokens, imports Poppins and Noto Sans Devanagari fonts, and defines hero overlay and text-shadow utilities.",
+  "frontend/tailwind.config.js": "Extended Tailwind config with Poppins/Devanagari font families, brand color tokens (brown, mustard, red, cream), custom shadows (card, cta), and fade-in-up animation keyframes.",
+  "frontend/index.html": "SEO-optimized HTML entry point with full meta tags, Open Graph tags, and JSON-LD LocalBusiness schema markup for Pind Pahadi Restaurant Delhi.",
+  "frontend/src/hooks/useQueries.ts": "React Query hook useSubmitBooking wrapping the backend submitBooking mutation with all six booking fields.",
+  "frontend/src/App.tsx": "Main app with TanStack Router setup, Layout component (Header + Footer + MobileStickyBar + WhatsAppButton), and routes for all five pages (Home, Menu, About, Reviews, Contact).",
+  "frontend/src/components/Header.tsx": "Sticky site-wide header with bilingual restaurant name, clickable phone number, desktop nav links, and mobile hamburger drawer using brand colors.",
+  "frontend/src/components/Footer.tsx": "Full footer with brand info, quick links, contact details, dynamic copyright year, and caffeine.ai attribution with UTM tracking.",
+  "frontend/src/components/MobileStickyBar.tsx": "Fixed bottom bar visible only on mobile with Call, Directions, and Book Table action buttons using brand styling.",
+  "frontend/src/components/WhatsAppButton.tsx": "Floating WhatsApp chat button (bottom-right desktop, above sticky bar mobile) linking to wa.me with a pre-filled message.",
+  "frontend/src/components/StarRating.tsx": "Reusable star rating display component with configurable rating, max stars, and three size variants.",
+  "frontend/src/pages/Home.tsx": "Full homepage with Hero (background image, bilingual name, tagline, 3 CTAs), Why Choose Us (5 cards), Featured Dishes (5 cards with generated images), Reviews (3 testimonials + rating), and Location (map + info) sections.",
+  "frontend/src/pages/Menu.tsx": "Menu page with sticky category tab bar (Starters, Main Course, Beverages, Combos), 4–7 hard-coded items per category with veg indicators, prices, and Order Now buttons.",
+  "frontend/src/pages/AboutUs.tsx": "About Us page with restaurant story, values grid (4 cards), team section (3 members), and location CTA banner.",
+  "frontend/src/pages/Reviews.tsx": "Reviews page with rating summary bar chart, 6 detailed testimonial cards, and Book Your Visit Today CTA.",
+  "frontend/src/pages/Contact.tsx": "Contact/Book Table page with a validated 6-field booking form, inline success confirmation, contact info cards, and embedded Google Maps iframe. Fixed the `timeSlots` array by adding an explicit `string[]` type annotation to resolve the TypeScript `never[]` inference error."
+}

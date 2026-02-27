@@ -1,0 +1,280 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-apply-a-cohesive-visual-theme-throughout-the-entire-website-earthy-punjabi-tones-rustic-brown-6b3a2a-mustard-yellow-e8a020-warm-red-c0392b-off-white-faf7f2-poppins-or-inter-as-the-primary-sans-serif-font-generous-whitespace-and-strong-high-contrast-cta-buttons-the-overall-feel-should-be-modern-premium-with-an-authentic-punjabi-dhaba-character",
+      "featureTitle": "Apply a cohesive visual theme throughout the entire website: earthy Punjabi tones (rustic brown #6B3A2A, mustard yellow #E8A020, warm red #C0392B, off-white #FAF7F2), Poppins or Inter as the primary sans-serif font, generous whitespace, and strong high-contrast CTA buttons. The overall feel should be modern-premium with an authentic Punjabi dhaba character.",
+      "files": [
+        "frontend/src/index.css",
+        "frontend/tailwind.config.js"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-build-a-persistent-site-wide-header-containing-the-restaurant-name-pind-pahadi-restaurant-delhi-in-english-and-in-hindi-smaller-subtitle-a-visible-phone-number-click-to-call-link-and-navigation-links-to-home-menu-about-us-reviews-and-contact-book-table-on-mobile-the-nav-collapses-into-a-hamburger-menu",
+      "featureTitle": "Build a persistent site-wide header containing: the restaurant name 'Pind Pahadi Restaurant Delhi' in English and 'पिंड पहाड़ी रेस्टोरेंट दिल्ली' in Hindi (smaller subtitle), a visible phone number (click-to-call link), and navigation links to Home, Menu, About Us, Reviews, and Contact/Book Table. On mobile the nav collapses into a hamburger menu.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/Header.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-create-the-home-page-hero-section-with-the-generated-hero-background-image-hero-bg-dim-1400x800-png-as-a-full-width-background-the-bilingual-restaurant-name-overlaid-in-large-text-the-tagline-authentic-taste-of-pahadi-punjabi-flavours-in-najafgarh-and-three-prominent-cta-buttons-call-now-tel-link-book-a-table-scrolls-to-booking-form-or-routes-to-contact-page-and-view-menu-routes-to-menu-page",
+      "featureTitle": "Create the Home page Hero section with: the generated hero background image (hero-bg.dim_1400x800.png) as a full-width background, the bilingual restaurant name overlaid in large text, the tagline 'Authentic Taste of Pahadi & Punjabi Flavours in Najafgarh', and three prominent CTA buttons: 'Call Now' (tel: link), 'Book a Table' (scrolls to booking form or routes to Contact page), and 'View Menu' (routes to Menu page).",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/pages/Home.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-why-choose-us-section-on-the-home-page-displaying-five-icon-copy-cards-4-8-rated-by-customers-authentic-pahadi-punjabi-dishes-professional-polite-staff-near-metro-gate-no-2-and-dine-in-pickup-delivery-available-use-relevant-emoji-or-inline-svg-icons-for-each-card",
+      "featureTitle": "Add a 'Why Choose Us' section on the Home page displaying five icon+copy cards: '4.8 Rated by Customers', 'Authentic Pahadi & Punjabi Dishes', 'Professional & Polite Staff', 'Near Metro Gate No. 2', and 'Dine-in, Pickup & Delivery Available'. Use relevant emoji or inline SVG icons for each card.",
+      "files": [
+        "frontend/src/pages/Home.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-featured-dishes-section-on-the-home-page-displaying-five-dish-cards-using-the-generated-dish-images-veg-momos-veg-momos-dim-400x300-png-veg-burger-veg-burger-dim-400x300-png-coffee-coffee-dim-400x300-png-punjabi-thali-punjabi-thali-dim-400x300-png-and-restaurant-ambience-ambience-dim-400x300-png-each-card-shows-the-dish-image-name-and-a-short-one-line-description-include-a-view-full-menu-cta-button-below-the-grid",
+      "featureTitle": "Add a 'Featured Dishes' section on the Home page displaying five dish cards using the generated dish images: Veg Momos (veg-momos.dim_400x300.png), Veg Burger (veg-burger.dim_400x300.png), Coffee (coffee.dim_400x300.png), Punjabi Thali (punjabi-thali.dim_400x300.png), and Restaurant Ambience (ambience.dim_400x300.png). Each card shows the dish image, name, and a short one-line description. Include a 'View Full Menu' CTA button below the grid.",
+      "files": [
+        "frontend/src/pages/Home.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-reviews-section-on-the-home-page-showing-three-real-testimonial-cards-authentic-food-and-variety-of-dishes-professional-staff-and-overall-great-food-and-friendly-and-warm-ambience-display-a-4-8-star-rating-badge-and-51-reviews-count-include-a-book-your-visit-today-cta-button-that-routes-to-the-contact-book-table-page",
+      "featureTitle": "Add a 'Reviews' section on the Home page showing three real testimonial cards: 'Authentic food and variety of dishes.', 'Professional staff and overall great food.', and 'Friendly and warm ambience.' Display a 4.8-star rating badge and '51 Reviews' count. Include a 'Book Your Visit Today' CTA button that routes to the Contact/Book Table page.",
+      "files": [
+        "frontend/src/pages/Home.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-location-section-on-the-home-page-displaying-an-embedded-google-maps-iframe-centered-on-gate-no-2-metro-station-nangli-najafgarh-new-delhi-delhi-110043-the-full-address-text-opening-hours-open-closes-10-pm-price-range-400-600-per-person-a-get-directions-button-linking-to-google-maps-directions-url-for-the-address-and-a-call-now-tel-link-button",
+      "featureTitle": "Add a 'Location' section on the Home page displaying: an embedded Google Maps iframe centered on 'Gate No 2, Metro Station, Nangli, Najafgarh, New Delhi, Delhi 110043', the full address text, opening hours 'Open — Closes 10 PM', price range '₹400–600 per person', a 'Get Directions' button linking to Google Maps directions URL for the address, and a 'Call Now' tel: link button.",
+      "files": [
+        "frontend/src/pages/Home.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-7"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-build-the-menu-page-with-a-categorized-layout-hard-code-a-representative-set-of-menu-items-across-four-categories-starters-main-course-beverages-and-combos-each-item-shows-item-name-short-description-price-in-and-an-order-now-button-the-page-should-have-a-category-filter-tab-bar-at-the-top-to-switch-between-categories",
+      "featureTitle": "Build the Menu page with a categorized layout. Hard-code a representative set of menu items across four categories: Starters, Main Course, Beverages, and Combos. Each item shows: item name, short description, price (in ₹), and an 'Order Now' button. The page should have a category filter/tab bar at the top to switch between categories.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/pages/Menu.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-8"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-build-the-about-us-page-with-a-section-describing-the-restaurant-s-story-values-authentic-pahadi-punjabi-cuisine-family-friendly-near-najafgarh-metro-gate-no-2-and-a-brief-team-staff-highlight-include-a-cta-linking-to-the-contact-book-table-page",
+      "featureTitle": "Build the About Us page with a section describing the restaurant's story, values (authentic Pahadi & Punjabi cuisine, family-friendly, near Najafgarh Metro Gate No. 2), and a brief team/staff highlight. Include a CTA linking to the Contact/Book Table page.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/pages/AboutUs.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-9"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-build-the-reviews-page-displaying-all-three-real-testimonials-in-card-format-same-as-the-homepage-reviews-section-along-with-the-4-8-star-rating-51-reviews-count-and-a-prominent-book-your-visit-today-cta",
+      "featureTitle": "Build the Reviews page displaying all three real testimonials in card format (same as the homepage Reviews section), along with the 4.8-star rating, 51 reviews count, and a prominent 'Book Your Visit Today' CTA.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/pages/Reviews.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-10"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-build-the-contact-book-table-page-containing-a-table-booking-form-with-fields-for-name-phone-number-number-of-guests-date-time-and-special-request-a-reserve-my-table-submit-button-and-an-inline-confirmation-message-thank-you-our-team-will-call-you-shortly-to-confirm-your-booking-shown-on-successful-submission-also-include-the-address-phone-number-tel-link-and-a-google-maps-iframe-on-this-page",
+      "featureTitle": "Build the Contact / Book Table page containing: a table booking form with fields for Name, Phone Number, Number of Guests, Date, Time, and Special Request; a 'Reserve My Table' submit button; and an inline confirmation message 'Thank you! Our team will call you shortly to confirm your booking.' shown on successful submission. Also include the address, phone number (tel: link), and a Google Maps iframe on this page.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/pages/Contact.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-11"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-mobile-sticky-bottom-bar-fixed-to-the-bottom-of-the-viewport-on-screens-768px-with-three-action-buttons-call-tel-link-directions-google-maps-link-and-book-table-routes-to-contact-book-table-page-this-bar-must-be-present-on-all-pages",
+      "featureTitle": "Add a mobile sticky bottom bar (fixed to the bottom of the viewport on screens ≤768px) with three action buttons: 'Call' (tel: link), 'Directions' (Google Maps link), and 'Book Table' (routes to Contact/Book Table page). This bar must be present on all pages.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/MobileStickyBar.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-13"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-whatsapp-floating-chat-button-visible-on-all-pages-bottom-right-corner-on-desktop-above-the-sticky-bar-on-mobile-the-button-should-open-a-whatsapp-chat-link-https-wa-me-with-the-restaurant-s-placeholder-number-in-a-new-tab",
+      "featureTitle": "Add a WhatsApp floating chat button visible on all pages (bottom-right corner on desktop, above the sticky bar on mobile). The button should open a WhatsApp chat link (https://wa.me/ with the restaurant's placeholder number) in a new tab.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/WhatsAppButton.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-14"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-seo-meta-tags-to-the-app-s-html-head-title-pind-pahadi-restaurant-delhi-authentic-pahadi-punjabi-food-in-najafgarh-meta-description-referencing-best-restaurant-in-najafgarh-pahadi-punjabi-cuisine-near-metro-400-600-add-json-ld-localbusiness-schema-markup-with-the-restaurant-name-address-gate-no-2-metro-station-nangli-najafgarh-new-delhi-delhi-110043-price-range-and-rating-4-8-51-reviews",
+      "featureTitle": "Add SEO meta tags to the app's HTML head: title 'Pind Pahadi Restaurant Delhi | Authentic Pahadi & Punjabi Food in Najafgarh', meta description referencing best restaurant in Najafgarh, Pahadi & Punjabi cuisine, near metro, ₹400–600. Add JSON-LD LocalBusiness schema markup with the restaurant name, address (Gate No 2, Metro Station, Nangli, Najafgarh, New Delhi, Delhi 110043), price range, and rating (4.8, 51 reviews).",
+      "files": [
+        "frontend/index.html"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-15"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

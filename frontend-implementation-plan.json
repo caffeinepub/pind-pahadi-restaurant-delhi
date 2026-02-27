@@ -1,0 +1,297 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Pind Pahadi Restaurant Delhi — Frontend Implementation",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Apply cohesive Punjabi-themed visual design site-wide with earthy color palette, Poppins/Inter fonts, and premium-dhaba aesthetic",
+      "acceptanceCriteria": [
+        "Color palette uses rustic brown, mustard yellow, warm red, and off-white consistently across all pages.",
+        "Poppins or Inter font is loaded and applied site-wide.",
+        "CTA buttons are visually distinct with high contrast and hover states.",
+        "Overall aesthetic reads as modern-premium yet authentically Punjabi."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Add CSS custom properties for the Punjabi color palette (rustic brown #6B3A2A, mustard yellow #E8A020, warm red #C0392B, off-white #FAF7F2). Import Poppins or Inter font from Google Fonts. Define base typography and global styles that reflect modern-premium aesthetic with authentic dhaba character."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Extend Tailwind theme with custom color variables (brown-rustic, yellow-mustard, red-warm, off-white) and set Poppins or Inter as the default sans font family. Configure spacing and border-radius to support generous whitespace and modern styling."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Build persistent site-wide header with bilingual restaurant name, phone number, and responsive navigation",
+      "acceptanceCriteria": [
+        "Header is visible on all pages.",
+        "Bilingual restaurant name (English + Hindi) is displayed in the header.",
+        "Phone number is a clickable tel: link.",
+        "All five navigation links render and route correctly.",
+        "On mobile, navigation collapses into a hamburger/drawer menu."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/Header.tsx",
+          "operation": "create",
+          "description": "Create Header component displaying 'Pind Pahadi Restaurant Delhi' in English and 'पिंड पहाड़ी रेस्टोरेंट दिल्ली' in Hindi (smaller subtitle). Include a clickable tel: link for the phone number. Render navigation links to Home, Menu, About Us, Reviews, and Contact/Book Table using React Router Link components. On mobile (≤768px), collapse navigation into a hamburger menu with a slide-out drawer. Apply the cohesive color palette from REQ-1."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Import and render the Header component at the top of the app layout so it appears on all pages. Ensure it wraps the main routing area."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Create Home page Hero section with generated hero background image, bilingual name, tagline, and three CTA buttons",
+      "acceptanceCriteria": [
+        "Hero section renders the hero background image full-width.",
+        "Bilingual restaurant name and tagline are clearly legible over the image.",
+        "All three CTA buttons are present and functional.",
+        "Call Now button opens a tel: link.",
+        "Book a Table navigates to the booking form.",
+        "View Menu navigates to the Menu page."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Home.tsx",
+          "operation": "create",
+          "description": "Create Home page component. Add a Hero section using the generated hero background image at frontend/public/assets/generated/hero-bg.dim_1400x800.png as a full-width background. Overlay the bilingual restaurant name ('Pind Pahadi Restaurant Delhi' in English and 'पिंड पहाड़ी रेस्टोरेंट दिल्ली' in Hindi) and the tagline 'Authentic Taste of Pahadi & Punjabi Flavours in Najafgarh'. Include three prominent CTA buttons: 'Call Now' (tel: link), 'Book a Table' (scrolls or routes to Contact page), and 'View Menu' (React Router Link to /menu). Ensure text is legible with appropriate contrast (overlay or shadow). Apply cohesive styling."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Import Home page and register the route '/' to render the Home component."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Add 'Why Choose Us' section on Home page with five icon+copy cards",
+      "acceptanceCriteria": [
+        "Five cards are displayed in a responsive grid (2 cols mobile, 3–5 cols desktop).",
+        "Each card has an icon and its corresponding copy.",
+        "Section is visually separated from the hero and next section."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Home.tsx",
+          "operation": "modify",
+          "description": "Add a 'Why Choose Us' section below the Hero section. Display five cards in a responsive grid (2 columns on mobile, 3–5 on desktop): '4.8 Rated by Customers', 'Authentic Pahadi & Punjabi Dishes', 'Professional & Polite Staff', 'Near Metro Gate No. 2', and 'Dine-in, Pickup & Delivery Available'. Use relevant emoji or inline SVG icons for each card. Apply cohesive styling and ensure visual separation from adjacent sections."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Add 'Featured Dishes' section on Home page with five dish cards using generated images and a 'View Full Menu' CTA",
+      "acceptanceCriteria": [
+        "Five dish cards render in a responsive grid.",
+        "Each card shows the corresponding generated image, dish name, and short description.",
+        "'View Full Menu' button routes to the Menu page.",
+        "Images are loaded from frontend/public/assets/generated."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Home.tsx",
+          "operation": "modify",
+          "description": "Add a 'Featured Dishes' section below 'Why Choose Us'. Display five dish cards in a responsive grid using the generated images: frontend/public/assets/generated/veg-momos.dim_400x300.png, frontend/public/assets/generated/veg-burger.dim_400x300.png, frontend/public/assets/generated/coffee.dim_400x300.png, frontend/public/assets/generated/punjabi-thali.dim_400x300.png, and frontend/public/assets/generated/ambience.dim_400x300.png. Each card shows the dish image, name (Veg Momos, Veg Burger, Coffee, Punjabi Thali, Restaurant Ambience), and a short one-line description. Include a 'View Full Menu' CTA button below the grid that links to /menu. Apply cohesive styling."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Add 'Reviews' section on Home page with three testimonials, 4.8-star rating, and 'Book Your Visit Today' CTA",
+      "acceptanceCriteria": [
+        "Three testimonial cards are displayed with the exact quoted text.",
+        "4.8 star rating and '51 Reviews' count are visible.",
+        "'Book Your Visit Today' CTA routes to the Contact/Book Table page."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Home.tsx",
+          "operation": "modify",
+          "description": "Add a 'Reviews' section below 'Featured Dishes'. Display three testimonial cards with the text: 'Authentic food and variety of dishes.', 'Professional staff and overall great food.', and 'Friendly and warm ambience.' Show a 4.8-star rating badge and '51 Reviews' count. Include a 'Book Your Visit Today' CTA button that routes to /contact. Apply cohesive styling."
+        }
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "summary": "Add 'Location' section on Home page with Google Maps iframe, address, hours, price range, and action buttons",
+      "acceptanceCriteria": [
+        "Google Maps iframe is embedded and displays the correct location.",
+        "Full address, hours, and price range are displayed as text.",
+        "'Get Directions' links to Google Maps directions for the address.",
+        "'Call Now' is a functional tel: link."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Home.tsx",
+          "operation": "modify",
+          "description": "Add a 'Location' section below 'Reviews'. Embed a Google Maps iframe centered on 'Gate No 2, Metro Station, Nangli, Najafgarh, New Delhi, Delhi 110043'. Display the full address text, opening hours 'Open — Closes 10 PM', and price range '₹400–600 per person'. Include a 'Get Directions' button linking to a Google Maps directions URL for the address, and a 'Call Now' tel: link button. Apply cohesive styling."
+        }
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "summary": "Build Menu page with categorized layout, hard-coded items across four categories, and category filter tabs",
+      "acceptanceCriteria": [
+        "Four category tabs/filters render: Starters, Main Course, Beverages, Combos.",
+        "Clicking a category tab filters the visible items.",
+        "Each item card shows name, description, price in ₹, and an Order Now button.",
+        "At least 4–5 items per category are hard-coded.",
+        "Layout is responsive on mobile."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Menu.tsx",
+          "operation": "create",
+          "description": "Create Menu page component with a category filter/tab bar at the top for four categories: Starters, Main Course, Beverages, and Combos. Hard-code a representative set of at least 4–5 items per category. Each item card displays: item name, short description, price (in ₹), and an 'Order Now' button. Clicking a category tab filters the visible items. Ensure responsive layout on mobile. Apply cohesive styling."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Import Menu page and register the route '/menu' to render the Menu component."
+        }
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "summary": "Build About Us page with restaurant story, values, staff highlight, and CTA to Contact page",
+      "acceptanceCriteria": [
+        "About Us page renders with restaurant story and values content.",
+        "Staff/team section is present.",
+        "CTA linking to the booking page is visible."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/AboutUs.tsx",
+          "operation": "create",
+          "description": "Create About Us page component. Include a section describing the restaurant's story, values (authentic Pahadi & Punjabi cuisine, family-friendly, near Najafgarh Metro Gate No. 2), and a brief team/staff highlight. Add a CTA linking to /contact. Apply cohesive styling."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Import AboutUs page and register the route '/about' to render the AboutUs component."
+        }
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "summary": "Build Reviews page displaying all three testimonials, 4.8-star rating, 51 reviews count, and 'Book Your Visit Today' CTA",
+      "acceptanceCriteria": [
+        "Reviews page renders all three testimonial cards.",
+        "4.8-star rating and 51 reviews count are displayed.",
+        "'Book Your Visit Today' CTA routes to the Contact/Book Table page."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Reviews.tsx",
+          "operation": "create",
+          "description": "Create Reviews page component displaying all three testimonials in card format (same as the homepage Reviews section): 'Authentic food and variety of dishes.', 'Professional staff and overall great food.', and 'Friendly and warm ambience.' Show the 4.8-star rating and '51 Reviews' count. Include a prominent 'Book Your Visit Today' CTA that routes to /contact. Apply cohesive styling."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Import Reviews page and register the route '/reviews' to render the Reviews component."
+        }
+      ]
+    },
+    {
+      "id": "REQ-11",
+      "summary": "Build Contact / Book Table page with booking form, inline confirmation message, address, phone, and Google Maps iframe",
+      "acceptanceCriteria": [
+        "All six form fields are present and functional.",
+        "'Reserve My Table' submit button triggers form submission.",
+        "On successful submission, the confirmation message is displayed inline.",
+        "Form data is persisted via the backend.",
+        "Address, phone (tel: link), and Google Maps iframe are visible on the page."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Contact.tsx",
+          "operation": "create",
+          "description": "Create Contact / Book Table page component. Include a table booking form with fields: Name, Phone Number, Number of Guests, Date, Time, and Special Request. Add a 'Reserve My Table' submit button. On successful submission (via the backend submitBooking function), display the inline confirmation message 'Thank you! Our team will call you shortly to confirm your booking.' Also include the restaurant address, a clickable tel: link for the phone number, and a Google Maps iframe. Apply cohesive styling and handle form state and submission."
+        },
+        {
+          "path": "frontend/src/hooks/useSubmitBooking.ts",
+          "operation": "create",
+          "description": "Create a React hook useSubmitBooking that wraps the backend submitBooking function. Use React Query's useMutation to handle the booking form submission. Accept name, phone, guests, date, time, and specialRequest as parameters. Return mutation state (isLoading, isSuccess, isError) and the mutate function for form submission."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Import Contact page and register the route '/contact' to render the Contact component."
+        }
+      ]
+    },
+    {
+      "id": "REQ-13",
+      "summary": "Add mobile sticky bottom bar with Call, Directions, and Book Table action buttons on all pages",
+      "acceptanceCriteria": [
+        "Sticky bar is visible only on mobile (≤768px).",
+        "All three buttons are present and functional.",
+        "Call button opens a tel: link.",
+        "Directions button opens Google Maps directions.",
+        "Book Table button routes to the Contact/Book Table page.",
+        "Bar is fixed at the bottom and does not overlap main content unexpectedly."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/MobileStickyBar.tsx",
+          "operation": "create",
+          "description": "Create MobileStickyBar component that renders a fixed bottom bar on screens ≤768px. Include three action buttons: 'Call' (tel: link), 'Directions' (Google Maps directions link for the restaurant address), and 'Book Table' (React Router Link to /contact). Apply cohesive styling, ensure the bar is fixed at the bottom, and does not overlap main content unexpectedly."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Import and render the MobileStickyBar component so it appears on all pages. Position it at the bottom of the layout."
+        }
+      ]
+    },
+    {
+      "id": "REQ-14",
+      "summary": "Add WhatsApp floating chat button visible on all pages, positioned appropriately on desktop and mobile",
+      "acceptanceCriteria": [
+        "WhatsApp button is visible on all pages.",
+        "Button is positioned bottom-right on desktop and above sticky bar on mobile.",
+        "Clicking opens a WhatsApp wa.me link in a new tab.",
+        "Button uses the WhatsApp green color and a chat icon."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/WhatsAppButton.tsx",
+          "operation": "create",
+          "description": "Create WhatsAppButton component that renders a floating chat button visible on all pages. Position it bottom-right on desktop and above the sticky bar on mobile. Use WhatsApp green color and a chat icon (emoji or SVG). The button should open a WhatsApp wa.me link (with the restaurant's placeholder phone number) in a new tab when clicked. Apply cohesive styling."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Import and render the WhatsAppButton component so it appears on all pages. Ensure it is positioned correctly relative to the MobileStickyBar on mobile."
+        }
+      ]
+    },
+    {
+      "id": "REQ-15",
+      "summary": "Add SEO meta tags and JSON-LD LocalBusiness schema markup to the app's HTML head",
+      "acceptanceCriteria": [
+        "HTML <title> and meta description tags are set as specified.",
+        "JSON-LD LocalBusiness schema block is present in the HTML head.",
+        "Schema includes name, address, priceRange, and aggregateRating fields."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Add SEO meta tags to the HTML head: title 'Pind Pahadi Restaurant Delhi | Authentic Pahadi & Punjabi Food in Najafgarh', meta description referencing best restaurant in Najafgarh, Pahadi & Punjabi cuisine, near metro, ₹400–600. Add a JSON-LD <script type='application/ld+json'> block with LocalBusiness schema markup including the restaurant name, address (Gate No 2, Metro Station, Nangli, Najafgarh, New Delhi, Delhi 110043), price range, and aggregateRating (4.8, 51 reviews)."
+        }
+      ]
+    }
+  ]
+}

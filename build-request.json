@@ -1,0 +1,343 @@
+{
+  "kind": "build_request",
+  "title": "Pind Pahadi Restaurant Delhi — Full Website Build",
+  "projectName": "Pind Pahadi Restaurant",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Apply a cohesive visual theme throughout the entire website: earthy Punjabi tones (rustic brown #6B3A2A, mustard yellow #E8A020, warm red #C0392B, off-white #FAF7F2), Poppins or Inter as the primary sans-serif font, generous whitespace, and strong high-contrast CTA buttons. The overall feel should be modern-premium with an authentic Punjabi dhaba character.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "White + earthy Punjabi tones (rustic brown, mustard yellow, warm red)",
+          "Authentic Punjabi dhaba vibe — but presented in a modern, premium way"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Color palette uses rustic brown, mustard yellow, warm red, and off-white consistently across all pages.",
+        "Poppins or Inter font is loaded and applied site-wide.",
+        "CTA buttons are visually distinct with high contrast and hover states.",
+        "Overall aesthetic reads as modern-premium yet authentically Punjabi."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Build a persistent site-wide header containing: the restaurant name 'Pind Pahadi Restaurant Delhi' in English and 'पिंड पहाड़ी रेस्टोरेंट दिल्ली' in Hindi (smaller subtitle), a visible phone number (click-to-call link), and navigation links to Home, Menu, About Us, Reviews, and Contact/Book Table. On mobile the nav collapses into a hamburger menu.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Visible phone number in header",
+          "Sitemap Structure: 1. Home 2. Menu 3. About Us 4. Reviews 5. Contact / Book Table"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Header is visible on all pages.",
+        "Bilingual restaurant name (English + Hindi) is displayed in the header.",
+        "Phone number is a clickable tel: link.",
+        "All five navigation links render and route correctly.",
+        "On mobile, navigation collapses into a hamburger/drawer menu."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Create the Home page Hero section with: the generated hero background image (hero-bg.dim_1400x800.png) as a full-width background, the bilingual restaurant name overlaid in large text, the tagline 'Authentic Taste of Pahadi & Punjabi Flavours in Najafgarh', and three prominent CTA buttons: 'Call Now' (tel: link), 'Book a Table' (scrolls to booking form or routes to Contact page), and 'View Menu' (routes to Menu page).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Large background image of signature dishes",
+          "Tagline: \"Authentic Taste of Pahadi & Punjabi Flavours in Najafgarh\"",
+          "Primary Buttons: Call Now, Book a Table, View Menu"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Hero section renders the hero background image full-width.",
+        "Bilingual restaurant name and tagline are clearly legible over the image.",
+        "All three CTA buttons are present and functional.",
+        "Call Now button opens a tel: link.",
+        "Book a Table navigates to the booking form.",
+        "View Menu navigates to the Menu page."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Add a 'Why Choose Us' section on the Home page displaying five icon+copy cards: '4.8 Rated by Customers', 'Authentic Pahadi & Punjabi Dishes', 'Professional & Polite Staff', 'Near Metro Gate No. 2', and 'Dine-in, Pickup & Delivery Available'. Use relevant emoji or inline SVG icons for each card.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Why Choose Us Section — Icons + Short Copy: 4.8 Rated by Customers, Authentic Pahadi & Punjabi Dishes, Professional & Polite Staff, Near Metro Gate No. 2, Dine-in, Pickup & Delivery Available"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Five cards are displayed in a responsive grid (2 cols mobile, 3–5 cols desktop).",
+        "Each card has an icon and its corresponding copy.",
+        "Section is visually separated from the hero and next section."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Add a 'Featured Dishes' section on the Home page displaying five dish cards using the generated dish images: Veg Momos (veg-momos.dim_400x300.png), Veg Burger (veg-burger.dim_400x300.png), Coffee (coffee.dim_400x300.png), Punjabi Thali (punjabi-thali.dim_400x300.png), and Restaurant Ambience (ambience.dim_400x300.png). Each card shows the dish image, name, and a short one-line description. Include a 'View Full Menu' CTA button below the grid.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Featured Dishes Section",
+          "Veg Momos, Veg Burger, Coffee, Punjabi Thali, Restaurant ambience",
+          "CTA below section: View Full Menu"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Five dish cards render in a responsive grid.",
+        "Each card shows the corresponding generated image, dish name, and short description.",
+        "'View Full Menu' button routes to the Menu page.",
+        "Images are loaded from frontend/public/assets/generated."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Add a 'Reviews' section on the Home page showing three real testimonial cards: 'Authentic food and variety of dishes.', 'Professional staff and overall great food.', and 'Friendly and warm ambience.' Display a 4.8-star rating badge and '51 Reviews' count. Include a 'Book Your Visit Today' CTA button that routes to the Contact/Book Table page.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Highlight real testimonials",
+          "4.8 Rating — Based on 51 Reviews",
+          "CTA: Book Your Visit Today"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Three testimonial cards are displayed with the exact quoted text.",
+        "4.8 star rating and '51 Reviews' count are visible.",
+        "'Book Your Visit Today' CTA routes to the Contact/Book Table page."
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Add a 'Location' section on the Home page displaying: an embedded Google Maps iframe centered on 'Gate No 2, Metro Station, Nangli, Najafgarh, New Delhi, Delhi 110043', the full address text, opening hours 'Open — Closes 10 PM', price range '₹400–600 per person', a 'Get Directions' button linking to Google Maps directions URL for the address, and a 'Call Now' tel: link button.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Embedded Google Map",
+          "Gate No 2, Metro Station, Nangli, Najafgarh, New Delhi, Delhi 110043",
+          "Open: Closes 10 PM",
+          "₹400–600 per person",
+          "Get Directions, Call Now"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Google Maps iframe is embedded and displays the correct location.",
+        "Full address, hours, and price range are displayed as text.",
+        "'Get Directions' links to Google Maps directions for the address.",
+        "'Call Now' is a functional tel: link."
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "text": "Build the Menu page with a categorized layout. Hard-code a representative set of menu items across four categories: Starters, Main Course, Beverages, and Combos. Each item shows: item name, short description, price (in ₹), and an 'Order Now' button. The page should have a category filter/tab bar at the top to switch between categories.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Menu Page Requirements — Clean categorized layout: Starters, Main Course, Beverages, Combos",
+          "Item name, Short description, Price, Order Now button"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Four category tabs/filters render: Starters, Main Course, Beverages, Combos.",
+        "Clicking a category tab filters the visible items.",
+        "Each item card shows name, description, price in ₹, and an Order Now button.",
+        "At least 4–5 items per category are hard-coded.",
+        "Layout is responsive on mobile."
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "text": "Build the About Us page with a section describing the restaurant's story, values (authentic Pahadi & Punjabi cuisine, family-friendly, near Najafgarh Metro Gate No. 2), and a brief team/staff highlight. Include a CTA linking to the Contact/Book Table page.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "About Us",
+          "Authentic Pahadi & Punjabi Dishes",
+          "Professional & Polite Staff"
+        ]
+      },
+      "acceptanceCriteria": [
+        "About Us page renders with restaurant story and values content.",
+        "Staff/team section is present.",
+        "CTA linking to the booking page is visible."
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "text": "Build the Reviews page displaying all three real testimonials in card format (same as the homepage Reviews section), along with the 4.8-star rating, 51 reviews count, and a prominent 'Book Your Visit Today' CTA.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Reviews",
+          "4.8 Rating — Based on 51 Reviews",
+          "Book Your Visit Today"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Reviews page renders all three testimonial cards.",
+        "4.8-star rating and 51 reviews count are displayed.",
+        "'Book Your Visit Today' CTA routes to the Contact/Book Table page."
+      ]
+    },
+    {
+      "id": "REQ-11",
+      "text": "Build the Contact / Book Table page containing: a table booking form with fields for Name, Phone Number, Number of Guests, Date, Time, and Special Request; a 'Reserve My Table' submit button; and an inline confirmation message 'Thank you! Our team will call you shortly to confirm your booking.' shown on successful submission. Also include the address, phone number (tel: link), and a Google Maps iframe on this page.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Booking Form Requirements",
+          "Fields: Name, Phone Number, Number of Guests, Date, Time, Special Request",
+          "Submit CTA: Reserve My Table",
+          "Auto confirmation message: Thank you! Our team will call you shortly to confirm your booking."
+        ]
+      },
+      "acceptanceCriteria": [
+        "All six form fields are present and functional.",
+        "'Reserve My Table' submit button triggers form submission.",
+        "On successful submission, the confirmation message is displayed inline.",
+        "Form data is persisted via the backend.",
+        "Address, phone (tel: link), and Google Maps iframe are visible on the page."
+      ]
+    },
+    {
+      "id": "REQ-12",
+      "text": "Implement a Motoko backend actor that stores table booking submissions. Expose a public function `submitBooking(name: Text, phone: Text, guests: Nat, date: Text, time: Text, specialRequest: Text) : async Bool` that stores the booking and returns true on success.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Table booking form submission",
+          "Booking Form Requirements"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The submitBooking function accepts all six fields and persists them.",
+        "The function returns true on success.",
+        "Bookings are stored in a stable array or list in the actor."
+      ]
+    },
+    {
+      "id": "REQ-13",
+      "text": "Add a mobile sticky bottom bar (fixed to the bottom of the viewport on screens ≤768px) with three action buttons: 'Call' (tel: link), 'Directions' (Google Maps link), and 'Book Table' (routes to Contact/Book Table page). This bar must be present on all pages.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Sticky bottom bar: Call, Directions, Book Table"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Sticky bar is visible only on mobile (≤768px).",
+        "All three buttons are present and functional.",
+        "Call button opens a tel: link.",
+        "Directions button opens Google Maps directions.",
+        "Book Table button routes to the Contact/Book Table page.",
+        "Bar is fixed at the bottom and does not overlap main content unexpectedly."
+      ]
+    },
+    {
+      "id": "REQ-14",
+      "text": "Add a WhatsApp floating chat button visible on all pages (bottom-right corner on desktop, above the sticky bar on mobile). The button should open a WhatsApp chat link (https://wa.me/ with the restaurant's placeholder number) in a new tab.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "WhatsApp chat button",
+          "WhatsApp integration"
+        ]
+      },
+      "acceptanceCriteria": [
+        "WhatsApp button is visible on all pages.",
+        "Button is positioned bottom-right on desktop and above sticky bar on mobile.",
+        "Clicking opens a WhatsApp wa.me link in a new tab.",
+        "Button uses the WhatsApp green color and a chat icon."
+      ]
+    },
+    {
+      "id": "REQ-15",
+      "text": "Add SEO meta tags to the app's HTML head: title 'Pind Pahadi Restaurant Delhi | Authentic Pahadi & Punjabi Food in Najafgarh', meta description referencing best restaurant in Najafgarh, Pahadi & Punjabi cuisine, near metro, ₹400–600. Add JSON-LD LocalBusiness schema markup with the restaurant name, address (Gate No 2, Metro Station, Nangli, Najafgarh, New Delhi, Delhi 110043), price range, and rating (4.8, 51 reviews).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "SEO optimized",
+          "Schema markup for Local Restaurant",
+          "SEO Keywords Target"
+        ]
+      },
+      "acceptanceCriteria": [
+        "HTML <title> and meta description tags are set as specified.",
+        "JSON-LD LocalBusiness schema block is present in the HTML head.",
+        "Schema includes name, address, priceRange, and aggregateRating fields."
+      ]
+    }
+  ],
+  "constraints": [
+    "Use only hard-coded menu data and testimonials on the frontend; no external CMS or third-party data APIs.",
+    "Google Maps must be embedded via iframe (no Maps JavaScript API key required).",
+    "WhatsApp link must use the wa.me format with a placeholder phone number.",
+    "All generated images must be served from frontend/public/assets/generated."
+  ],
+  "nonGoals": [
+    "Online payment processing or e-commerce checkout.",
+    "User authentication or Internet Identity login.",
+    "Real-time order tracking.",
+    "Downloadable PDF menu generation.",
+    "Google Analytics or third-party click-tracking scripts.",
+    "Admin dashboard for managing bookings."
+  ],
+  "imageRequirements": {
+    "required": [
+      "Richly lit overhead spread of authentic Pahadi and Punjabi signature dishes on a rustic wooden table — warm tones, moody restaurant lighting, hero composition (hero-bg.dim_1400x800.png)",
+      "Steamed Veg Momos arranged on a dark slate plate with chutney, close-up food photography style (veg-momos.dim_400x300.png)",
+      "Fresh Veg Burger with layered fillings on a wooden board, vibrant colors, appetizing close-up (veg-burger.dim_400x300.png)",
+      "Hot cup of frothy coffee in a ceramic mug on a rustic wooden surface with warm bokeh background (coffee.dim_400x300.png)",
+      "Traditional Punjabi Thali with multiple bowls of dal, sabzi, roti, rice, and pickle on a brass thali, overhead shot (punjabi-thali.dim_400x300.png)",
+      "Warm and inviting Indian restaurant interior with earthy decor, string lights, wooden furniture, and a cozy family-dining ambience (ambience.dim_400x300.png)"
+    ],
+    "edits": []
+  }
+}
