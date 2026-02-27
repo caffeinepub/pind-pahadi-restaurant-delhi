@@ -11,6 +11,8 @@ import {
   Clock,
   Phone,
   MessageSquare,
+  IndianRupee,
+  ImageIcon,
 } from 'lucide-react';
 import { useGetAllBookings } from '../hooks/useQueries';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
@@ -94,6 +96,9 @@ export default function Admin() {
       </div>
     );
   }
+
+  // Total deposits collected
+  const totalDeposits = bookings?.reduce((sum, b) => sum + Number(b.deposit ?? BigInt(Number(b.guests) * 100)), 0) ?? 0;
 
   return (
     <div className="min-h-screen bg-cream">
@@ -243,7 +248,7 @@ export default function Admin() {
         {step === 'dashboard' && (
           <div className="space-y-6">
             {/* Stats Row */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-white rounded-xl shadow-card p-5 border border-brown/10 flex items-center gap-4">
                 <div className="w-12 h-12 bg-mustard/20 rounded-xl flex items-center justify-center flex-shrink-0">
                   <BookOpen className="w-6 h-6 text-brown" />
@@ -288,6 +293,20 @@ export default function Admin() {
                     {isLoading
                       ? '—'
                       : bookings?.reduce((sum, b) => sum + Number(b.guests), 0) ?? 0}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-card p-5 border border-brown/10 flex items-center gap-4">
+                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <IndianRupee className="w-6 h-6 text-green-700" />
+                </div>
+                <div>
+                  <p className="text-brown/50 text-xs font-poppins uppercase tracking-wide">
+                    Total Deposits
+                  </p>
+                  <p className="font-poppins font-bold text-2xl text-brown">
+                    {isLoading ? '—' : `₹${totalDeposits}`}
                   </p>
                 </div>
               </div>
@@ -371,6 +390,12 @@ export default function Admin() {
                         </TableHead>
                         <TableHead className="font-poppins font-semibold text-brown whitespace-nowrap">
                           <span className="flex items-center gap-1.5">
+                            <IndianRupee className="w-3.5 h-3.5" />
+                            Deposit (₹)
+                          </span>
+                        </TableHead>
+                        <TableHead className="font-poppins font-semibold text-brown whitespace-nowrap">
+                          <span className="flex items-center gap-1.5">
                             <Calendar className="w-3.5 h-3.5" />
                             Date
                           </span>
@@ -387,61 +412,74 @@ export default function Admin() {
                             Special Request
                           </span>
                         </TableHead>
+                        <TableHead className="font-poppins font-semibold text-brown whitespace-nowrap">
+                          <span className="flex items-center gap-1.5">
+                            <ImageIcon className="w-3.5 h-3.5" />
+                            Payment Screenshot
+                          </span>
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {bookings.map((booking, index) => (
-                        <TableRow
-                          key={index}
-                          className="hover:bg-cream/30 transition-colors border-brown/5"
-                        >
-                          <TableCell className="font-poppins font-medium text-brown">
-                            {booking.name}
-                          </TableCell>
-                          <TableCell className="font-poppins text-brown/70">
-                            <a
-                              href={`tel:${booking.phone}`}
-                              className="hover:text-mustard transition-colors"
-                            >
-                              {booking.phone}
-                            </a>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className="bg-mustard/20 text-brown border border-mustard/30 font-poppins font-semibold hover:bg-mustard/30">
-                              {Number(booking.guests)} pax
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="font-poppins text-brown/70 whitespace-nowrap">
-                            {booking.date}
-                          </TableCell>
-                          <TableCell className="font-poppins text-brown/70 whitespace-nowrap">
-                            {booking.time}
-                          </TableCell>
-                          <TableCell className="font-poppins text-brown/60 max-w-xs">
-                            {booking.specialRequest ? (
-                              <span
-                                className="block truncate max-w-[200px]"
-                                title={booking.specialRequest}
+                      {bookings.map((booking, index) => {
+                        const depositAmt = Number(booking.deposit ?? BigInt(Number(booking.guests) * 100));
+                        return (
+                          <TableRow
+                            key={index}
+                            className="hover:bg-cream/30 transition-colors border-brown/5"
+                          >
+                            <TableCell className="font-poppins font-medium text-brown">
+                              {booking.name}
+                            </TableCell>
+                            <TableCell className="font-poppins text-brown/70">
+                              <a
+                                href={`tel:${booking.phone}`}
+                                className="hover:text-mustard transition-colors"
                               >
-                                {booking.specialRequest}
+                                {booking.phone}
+                              </a>
+                            </TableCell>
+                            <TableCell className="font-poppins text-brown/70 text-center">
+                              {Number(booking.guests)}
+                            </TableCell>
+                            <TableCell>
+                              <Badge className="bg-green-100 text-green-800 border-green-200 font-poppins font-semibold hover:bg-green-100">
+                                ₹{depositAmt}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="font-poppins text-brown/70 whitespace-nowrap">
+                              {booking.date}
+                            </TableCell>
+                            <TableCell className="font-poppins text-brown/70 whitespace-nowrap">
+                              {booking.time}
+                            </TableCell>
+                            <TableCell className="font-poppins text-brown/60 max-w-[180px]">
+                              <span className="line-clamp-2 text-xs">
+                                {booking.specialRequest || (
+                                  <span className="text-brown/30 italic">—</span>
+                                )}
                               </span>
-                            ) : (
-                              <span className="text-brown/30 italic text-sm">None</span>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                            </TableCell>
+                            <TableCell className="font-poppins text-brown/70 max-w-[160px]">
+                              {booking.screenshotFileName ? (
+                                <span className="flex items-center gap-1.5 text-xs text-green-700 font-medium">
+                                  <ImageIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                                  <span className="truncate" title={booking.screenshotFileName}>
+                                    {booking.screenshotFileName}
+                                  </span>
+                                </span>
+                              ) : (
+                                <span className="text-brown/30 italic text-xs">—</span>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </div>
               )}
             </div>
-
-            {/* Footer note */}
-            <p className="text-center text-brown/30 text-xs font-poppins pb-4">
-              Showing all {bookings?.length ?? 0} booking
-              {(bookings?.length ?? 0) !== 1 ? 's' : ''} · Sorted by date
-            </p>
           </div>
         )}
       </div>

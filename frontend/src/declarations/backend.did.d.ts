@@ -11,13 +11,16 @@ import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
 export interface Booking {
+  'screenshotFileName' : [] | [string],
   'date' : string,
   'name' : string,
   'time' : string,
+  'deposit' : bigint,
   'specialRequest' : string,
   'phone' : string,
   'guests' : bigint,
 }
+export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
@@ -26,10 +29,13 @@ export interface _SERVICE {
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'clearAllBookings' : ActorMethod<[], undefined>,
   'getAllBookings' : ActorMethod<[], Array<Booking>>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'submitBooking' : ActorMethod<
-    [string, string, bigint, string, string, string],
+    [string, string, bigint, string, string, string, [] | [string]],
     boolean
   >,
 }

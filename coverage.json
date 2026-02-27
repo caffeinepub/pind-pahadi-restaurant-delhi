@@ -1,38 +1,55 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-27T14:00:38.752Z",
+  "generatedAt": "2026-02-27T19:05:35.644Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 2,
+    "implemented": 2,
     "items": [
       {
-        "id": "REQ-18",
-        "summary": "Change the admin dashboard route in the frontend router from '/admin' to '/pindpahadi-manage-2024'. Update all internal links, redirects, and references that point to '/admin' (including any navigation guards or route definitions in App.tsx) to use the new path '/pindpahadi-manage-2024'. The old '/admin' path should no longer resolve to the dashboard.",
+        "id": "REQ-1",
+        "summary": "Update all references to the app's public URL from 'pindpahadirestrurent.caffeine.xyz' to 'pindpahadirestrurent.caffein.xyz' (note: single 'e' in 'caffein'). This includes the canonical URL meta tag in frontend/index.html, the Open Graph URL, the JSON-LD Restaurant schema URL, and any hardcoded domain references across the codebase.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/pages/Admin.tsx",
-          "frontend/src/components/Header.tsx",
-          "frontend/src/components/MobileStickyBar.tsx",
+          "frontend/index.html",
           "frontend/src/components/Footer.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/App.tsx"
+          "frontend/index.html"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Fix the table reservation (booking) feature so that it works correctly when accessed from any device, not just the device on which the booking was originally initiated. Investigate and resolve any issues in the booking submission flow in frontend/src/pages/Contact.tsx and frontend/src/hooks/useQueries.ts that could cause failures on other devices — such as device-specific actor initialization, anonymous identity mismatches, or session/actor not being properly set up for unauthenticated users on a fresh device.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/Contact.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/Contact.tsx",
+          "frontend/src/hooks/useQueries.ts"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
+    "frontend/index.html",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/Contact.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

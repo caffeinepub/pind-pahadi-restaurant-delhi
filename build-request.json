@@ -1,38 +1,59 @@
 {
   "kind": "build_request",
-  "title": "Change admin dashboard URL path to a custom less-obvious route",
+  "title": "Fix cross-device table reservation and update canonical URL",
   "projectName": "Pind Pahadi Restaurant",
-  "priority": "normal",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-18",
-      "text": "Change the admin dashboard route in the frontend router from '/admin' to '/pindpahadi-manage-2024'. Update all internal links, redirects, and references that point to '/admin' (including any navigation guards or route definitions in App.tsx) to use the new path '/pindpahadi-manage-2024'. The old '/admin' path should no longer resolve to the dashboard.",
+      "id": "REQ-1",
+      "text": "Update all references to the app's public URL from 'pindpahadirestrurent.caffeine.xyz' to 'pindpahadirestrurent.caffein.xyz' (note: single 'e' in 'caffein'). This includes the canonical URL meta tag in frontend/index.html, the Open Graph URL, the JSON-LD Restaurant schema URL, and any hardcoded domain references across the codebase.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-last"
         ],
         "quotes": [
-          "i want to change the name of url",
-          "Make it harder to find by using a less obvious URL path (like `/pindpahadi-admin-2024`)"
+          "change url to pindpahadirestrurent.caffein.xyz"
         ]
       },
       "acceptanceCriteria": [
-        "Navigating to '/pindpahadi-manage-2024' loads the password-protected admin dashboard",
-        "Navigating to '/admin' no longer loads the admin dashboard (404 or redirects to home)",
-        "All internal links or programmatic navigations that previously pointed to '/admin' now point to '/pindpahadi-manage-2024'",
-        "The new path does not appear in the main navigation header or mobile sticky bar"
+        "The canonical URL in index.html points to https://pindpahadirestrurent.caffein.xyz",
+        "Open Graph og:url meta tag uses the new domain",
+        "JSON-LD Restaurant schema URL uses the new domain",
+        "No remaining references to the old 'caffeine.xyz' domain exist in the frontend source files"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Fix the table reservation (booking) feature so that it works correctly when accessed from any device, not just the device on which the booking was originally initiated. Investigate and resolve any issues in the booking submission flow in frontend/src/pages/Contact.tsx and frontend/src/hooks/useQueries.ts that could cause failures on other devices — such as device-specific actor initialization, anonymous identity mismatches, or session/actor not being properly set up for unauthenticated users on a fresh device.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "there is problem in reserving table from other device pls correct this"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A user on any device (mobile or desktop, any browser) can open the Contact/Book Table page and submit a reservation without errors",
+        "The booking submission does not depend on any device-local session state or previously cached actor",
+        "Submitted bookings from any device appear correctly in the admin dashboard",
+        "The anonymous actor is correctly initialized for unauthenticated booking submissions on fresh devices",
+        "Error messages, if any, are informative and actionable for the user"
       ]
     }
   ],
   "constraints": [
-    "Do not expose the new admin URL path in any visible navigation element (header, footer, mobile sticky bar)",
-    "Do not change any backend logic or booking data structures"
+    "Do not change the admin route path or password",
+    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
+    "Preserve all existing booking data in the backend"
   ],
   "nonGoals": [
-    "Changing the admin password",
-    "Adding authentication beyond the existing hardcoded password",
-    "Modifying the admin dashboard UI or functionality"
+    "Redesigning the reservation form UI",
+    "Adding new reservation fields or features",
+    "Changing the admin dashboard functionality",
+    "Modifying the payment/UPI deposit flow"
   ],
   "imageRequirements": {
     "required": [],

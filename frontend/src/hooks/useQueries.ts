@@ -3,7 +3,7 @@ import { useActor } from './useActor';
 import type { Booking } from '../backend';
 
 export function useSubmitBooking() {
-  const { actor } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
   return useMutation({
     mutationFn: async (data: {
@@ -13,18 +13,33 @@ export function useSubmitBooking() {
       date: string;
       time: string;
       specialRequest: string;
+      screenshotFileName?: string | null;
     }) => {
-      if (!actor) throw new Error('Actor not available');
+      // If actor is still initializing, wait and retry
+      if (!actor) {
+        throw new Error('Connection not ready. Please wait a moment and try again.');
+      }
       const result = await actor.submitBooking(
         data.name,
         data.phone,
         BigInt(data.guests),
         data.date,
         data.time,
-        data.specialRequest
+        data.specialRequest,
+        data.screenshotFileName ?? null,
       );
       return result;
     },
+    retry: (failureCount, error) => {
+      // Retry up to 3 times if actor is not ready yet
+      const message = error instanceof Error ? error.message : '';
+      if (message.includes('Connection not ready') && failureCount < 3) {
+        return true;
+      }
+      return false;
+    },
+    retryDelay: 1500,
+    meta: { actorFetching },
   });
 }
 

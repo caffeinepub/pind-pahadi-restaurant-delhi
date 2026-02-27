@@ -1,12 +1,16 @@
-import { useState } from 'react';
-import { Phone, MapPin, Clock, CheckCircle, Loader2, Navigation } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Phone, MapPin, Clock, CheckCircle, Loader2, Navigation, Info, Copy, Check, ImageUp, Wifi } from 'lucide-react';
 import { useSubmitBooking } from '../hooks/useQueries';
+import { useActor } from '../hooks/useActor';
 
 const PHONE = '+91-9999999999';
 const PHONE_DISPLAY = '+91-99999 99999';
 const ADDRESS = 'Gate No 2, Metro Station, Nangli, Najafgarh, New Delhi, Delhi 110043';
 const MAPS_URL = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(ADDRESS)}`;
 const MAPS_EMBED_URL = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3503.0!2d76.9798!3d28.6092!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjjCsDM2JzMzLjEiTiA3NsKwNTgnNDcuMyJF!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin`;
+
+const DEPOSIT_PER_GUEST = 100;
+const UPI_ID = 'anshu14092028@okhdfcbank';
 
 interface FormData {
   name: string;
@@ -28,17 +32,24 @@ const initialForm: FormData = {
 
 export default function Contact() {
   const [form, setForm] = useState<FormData>(initialForm);
-  const [errors, setErrors] = useState<Partial<FormData>>({});
-  const { mutate: submitBooking, isPending, isSuccess, isError } = useSubmitBooking();
+  const [errors, setErrors] = useState<Partial<FormData & { screenshot: string }>>({});
+  const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
+  const [upiCopied, setUpiCopied] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { actor, isFetching: actorFetching } = useActor();
+  const { mutate: submitBooking, isPending, isSuccess, isError, error: mutationError } = useSubmitBooking();
+
+  const isActorReady = !!actor && !actorFetching;
 
   const validate = (): boolean => {
-    const newErrors: Partial<FormData> = {};
+    const newErrors: Partial<FormData & { screenshot: string }> = {};
     if (!form.name.trim()) newErrors.name = 'Name is required';
     if (!form.phone.trim()) newErrors.phone = 'Phone number is required';
     else if (!/^[+\d\s-]{8,15}$/.test(form.phone)) newErrors.phone = 'Enter a valid phone number';
     if (!form.guests || parseInt(form.guests) < 1) newErrors.guests = 'At least 1 guest required';
     if (!form.date) newErrors.date = 'Date is required';
     if (!form.time) newErrors.time = 'Time is required';
+    if (!screenshotFile) newErrors.screenshot = 'Please upload your UPI payment screenshot';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -51,9 +62,28 @@ export default function Contact() {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    setScreenshotFile(file);
+    if (file) {
+      setErrors((prev) => ({ ...prev, screenshot: undefined }));
+    }
+  };
+
+  const handleCopyUpi = async () => {
+    try {
+      await navigator.clipboard.writeText(UPI_ID);
+      setUpiCopied(true);
+      setTimeout(() => setUpiCopied(false), 2000);
+    } catch {
+      // fallback: select text
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+    if (!isActorReady) return;
     submitBooking({
       name: form.name,
       phone: form.phone,
@@ -61,15 +91,18 @@ export default function Contact() {
       date: form.date,
       time: form.time,
       specialRequest: form.specialRequest,
+      screenshotFileName: screenshotFile?.name ?? null,
     });
   };
 
   const handleReset = () => {
     setForm(initialForm);
     setErrors({});
+    setScreenshotFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  // Generate time slots — explicitly typed as string[]
+  // Generate time slots
   const timeSlots: string[] = [];
   for (let h = 10; h <= 21; h++) {
     timeSlots.push(`${h.toString().padStart(2, '0')}:00`);
@@ -85,6 +118,20 @@ export default function Contact() {
         ? 'border-brand-red bg-red-50 focus:border-brand-red'
         : 'border-border bg-white focus:border-brand-brown'
     }`;
+
+  // Calculate deposit for current guest count
+  const guestCount = parseInt(form.guests) || 0;
+  const depositAmount = guestCount * DEPOSIT_PER_GUEST;
+
+  // Determine error message to show
+  const errorMessage = (() => {
+    if (!isError) return null;
+    const msg = mutationError instanceof Error ? mutationError.message : '';
+    if (msg.includes('Connection not ready')) {
+      return 'Still connecting to the server. Please wait a moment and try again.';
+    }
+    return 'Something went wrong. Please try again or call us directly.';
+  })();
 
   return (
     <div className="pb-16 lg:pb-0">
@@ -113,7 +160,7 @@ export default function Contact() {
                   <p className="text-muted-foreground mb-6 leading-relaxed">
                     Thank you! Our team will call you shortly to confirm your booking.
                   </p>
-                  <div className="bg-brand-cream rounded-2xl p-4 text-sm text-left space-y-2 mb-6">
+                  <div className="bg-brand-cream rounded-2xl p-4 text-sm text-left space-y-2 mb-4">
                     <p><span className="font-semibold text-brand-brown">Name:</span> {form.name}</p>
                     <p><span className="font-semibold text-brand-brown">Phone:</span> {form.phone}</p>
                     <p><span className="font-semibold text-brand-brown">Guests:</span> {form.guests}</p>
@@ -121,6 +168,27 @@ export default function Contact() {
                     <p><span className="font-semibold text-brand-brown">Time:</span> {form.time}</p>
                     {form.specialRequest && (
                       <p><span className="font-semibold text-brand-brown">Note:</span> {form.specialRequest}</p>
+                    )}
+                    {screenshotFile && (
+                      <p>
+                        <span className="font-semibold text-brand-brown">Payment Screenshot:</span>{' '}
+                        <span className="text-green-700 font-medium">{screenshotFile.name}</span>
+                      </p>
+                    )}
+                  </div>
+                  {/* Deposit confirmation notice */}
+                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-left mb-6">
+                    <p className="font-bold text-brand-brown mb-1">
+                      💰 Booking Deposit: ₹{parseInt(form.guests) * DEPOSIT_PER_GUEST}
+                    </p>
+                    <p className="text-brand-brown/70 text-xs leading-relaxed">
+                      ₹{DEPOSIT_PER_GUEST} × {form.guests} {parseInt(form.guests) === 1 ? 'guest' : 'guests'} = ₹{parseInt(form.guests) * DEPOSIT_PER_GUEST} will be collected at arrival and fully deducted from your final bill.
+                      In case of cancellation, only 50% (₹{Math.round(parseInt(form.guests) * DEPOSIT_PER_GUEST * 0.5)}) is refundable.
+                    </p>
+                    {screenshotFile && (
+                      <p className="text-green-700 text-xs mt-2 font-medium">
+                        ✓ Payment screenshot received: {screenshotFile.name}
+                      </p>
                     )}
                   </div>
                   <button
@@ -133,11 +201,21 @@ export default function Contact() {
               ) : (
                 <>
                   <h2 className="text-2xl font-bold text-brand-brown mb-6">Reserve Your Table</h2>
-                  {isError && (
-                    <div className="mb-4 p-3 bg-red-50 border border-brand-red/30 rounded-xl text-sm text-brand-red">
-                      Something went wrong. Please try again or call us directly.
+
+                  {/* Actor loading indicator */}
+                  {actorFetching && (
+                    <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-700 flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
+                      <span>Connecting to server, please wait…</span>
                     </div>
                   )}
+
+                  {isError && (
+                    <div className="mb-4 p-3 bg-red-50 border border-brand-red/30 rounded-xl text-sm text-brand-red">
+                      {errorMessage}
+                    </div>
+                  )}
+
                   <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Name */}
                     <div>
@@ -240,20 +318,136 @@ export default function Contact() {
                       />
                     </div>
 
+                    {/* Deposit Policy Notice */}
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                      <div className="flex items-start gap-2.5">
+                        <Info className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                        <div className="text-xs text-amber-800 leading-relaxed space-y-1">
+                          <p className="font-bold text-amber-900">
+                            Booking Deposit: ₹{depositAmount} ({guestCount} {guestCount === 1 ? 'guest' : 'guests'} × ₹{DEPOSIT_PER_GUEST})
+                          </p>
+                          <p>
+                            A deposit of <strong>₹{DEPOSIT_PER_GUEST} per guest</strong> is collected at the time of arrival. This amount is <strong>fully deducted from your final bill</strong>.
+                          </p>
+                          <p>
+                            In case of cancellation, only <strong>50% of the deposit is refundable</strong>.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* UPI Payment Notice */}
+                    <div className="bg-brand-cream border-2 border-brand-mustard/50 rounded-xl p-4">
+                      <div className="flex items-start gap-2.5">
+                        <span className="text-lg flex-shrink-0 mt-0.5">💳</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-brand-brown text-sm mb-1">
+                            Pay Deposit via UPI
+                          </p>
+                          <p className="text-xs text-brand-brown/70 leading-relaxed mb-3">
+                            Please pay <strong>₹{depositAmount}</strong> ({guestCount} {guestCount === 1 ? 'guest' : 'guests'} × ₹{DEPOSIT_PER_GUEST}) to the UPI ID below before submitting your booking. Then upload the payment screenshot.
+                          </p>
+                          <div className="flex items-center gap-2 bg-white border border-brand-mustard/40 rounded-lg px-3 py-2">
+                            <span className="text-xs text-brand-brown/50 font-medium flex-shrink-0">UPI ID:</span>
+                            <code className="text-sm font-bold text-brand-brown flex-1 select-all break-all">
+                              {UPI_ID}
+                            </code>
+                            <button
+                              type="button"
+                              onClick={handleCopyUpi}
+                              className="flex-shrink-0 p-1 rounded-md hover:bg-brand-mustard/20 transition-colors text-brand-brown/60 hover:text-brand-brown"
+                              title="Copy UPI ID"
+                            >
+                              {upiCopied ? (
+                                <Check className="w-4 h-4 text-green-600" />
+                              ) : (
+                                <Copy className="w-4 h-4" />
+                              )}
+                            </button>
+                          </div>
+                          {upiCopied && (
+                            <p className="text-xs text-green-600 mt-1 font-medium">✓ UPI ID copied!</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Screenshot Upload */}
+                    <div>
+                      <label className="block text-sm font-semibold text-brand-brown mb-1.5">
+                        Upload Payment Screenshot <span className="text-brand-red">*</span>
+                      </label>
+                      <div
+                        className={`relative w-full rounded-xl border-2 border-dashed transition-colors cursor-pointer ${
+                          errors.screenshot
+                            ? 'border-brand-red bg-red-50'
+                            : screenshotFile
+                            ? 'border-green-400 bg-green-50'
+                            : 'border-brand-mustard/50 bg-brand-cream/40 hover:border-brand-mustard hover:bg-brand-cream/70'
+                        }`}
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          onChange={handleFileChange}
+                          className="sr-only"
+                        />
+                        <div className="flex flex-col items-center justify-center py-5 px-4 text-center">
+                          {screenshotFile ? (
+                            <>
+                              <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mb-2">
+                                <Check className="w-5 h-5 text-green-600" />
+                              </div>
+                              <p className="text-sm font-semibold text-green-700">{screenshotFile.name}</p>
+                              <p className="text-xs text-green-600 mt-0.5">
+                                {(screenshotFile.size / 1024).toFixed(0)} KB — tap to change
+                              </p>
+                            </>
+                          ) : (
+                            <>
+                              <div className="w-10 h-10 rounded-full bg-brand-mustard/20 flex items-center justify-center mb-2">
+                                <ImageUp className="w-5 h-5 text-brand-brown" />
+                              </div>
+                              <p className="text-sm font-semibold text-brand-brown">Tap to upload screenshot</p>
+                              <p className="text-xs text-brand-brown/50 mt-0.5">JPEG, PNG or WebP</p>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      {errors.screenshot && (
+                        <p className="text-xs text-brand-red mt-1">{errors.screenshot}</p>
+                      )}
+                    </div>
+
+                    {/* Submit Button */}
                     <button
                       type="submit"
-                      disabled={isPending}
-                      className="w-full flex items-center justify-center gap-2 bg-brand-red text-white py-4 rounded-xl font-bold text-base hover:bg-brand-red-light transition-all shadow-cta hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
+                      disabled={isPending || actorFetching}
+                      className="w-full py-4 rounded-2xl bg-brand-brown text-white font-bold text-base transition-all hover:bg-brand-brown/90 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {isPending ? (
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />
-                          Reserving...
+                          Submitting Booking…
+                        </>
+                      ) : actorFetching ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Connecting…
                         </>
                       ) : (
-                        'Reserve My Table'
+                        'Confirm Booking'
                       )}
                     </button>
+
+                    {!isActorReady && !actorFetching && (
+                      <p className="text-xs text-center text-muted-foreground flex items-center justify-center gap-1">
+                        <Wifi className="w-3 h-3" />
+                        Unable to connect. Please refresh the page and try again.
+                      </p>
+                    )}
                   </form>
                 </>
               )}
@@ -262,69 +456,61 @@ export default function Contact() {
 
           {/* Contact Info + Map */}
           <div className="space-y-6">
-            {/* Info Cards */}
-            <div className="bg-white rounded-3xl shadow-card p-6 space-y-5">
-              <h2 className="text-xl font-bold text-brand-brown">Contact & Location</h2>
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-brand-cream flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-5 h-5 text-brand-red" />
-                </div>
-                <div>
-                  <p className="font-semibold text-brand-brown text-sm">Address</p>
-                  <p className="text-sm text-muted-foreground mt-0.5">{ADDRESS}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-brand-cream flex items-center justify-center flex-shrink-0">
-                  <Phone className="w-5 h-5 text-brand-red" />
-                </div>
-                <div>
-                  <p className="font-semibold text-brand-brown text-sm">Phone</p>
-                  <a href={`tel:${PHONE}`} className="text-sm text-brand-red hover:underline font-medium">
-                    {PHONE_DISPLAY}
-                  </a>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-brand-cream flex items-center justify-center flex-shrink-0">
-                  <Clock className="w-5 h-5 text-brand-red" />
-                </div>
-                <div>
-                  <p className="font-semibold text-brand-brown text-sm">Hours</p>
-                  <p className="text-sm text-muted-foreground">Open daily — Closes 10 PM</p>
-                </div>
-              </div>
-              <div className="flex gap-3 pt-2">
-                <a
-                  href={MAPS_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 flex items-center justify-center gap-2 bg-brand-brown text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-brand-brown-light transition-all"
-                >
-                  <Navigation className="w-4 h-4" />
-                  Directions
-                </a>
-                <a
-                  href={`tel:${PHONE}`}
-                  className="flex-1 flex items-center justify-center gap-2 bg-brand-red text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-brand-red-light transition-all"
-                >
-                  <Phone className="w-4 h-4" />
-                  Call Now
-                </a>
-              </div>
+            {/* Contact Details */}
+            <div className="bg-white rounded-3xl shadow-card p-6 sm:p-8">
+              <h2 className="text-xl font-bold text-brand-brown mb-5">Contact & Location</h2>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-brand-cream flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-4 h-4 text-brand-brown" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-brand-brown">Address</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{ADDRESS}</p>
+                    <a
+                      href={MAPS_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-brand-mustard font-semibold mt-1 hover:underline"
+                    >
+                      <Navigation className="w-3 h-3" /> Get Directions
+                    </a>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-brand-cream flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-4 h-4 text-brand-brown" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-brand-brown">Phone</p>
+                    <a href={`tel:${PHONE}`} className="text-sm text-muted-foreground hover:text-brand-brown transition-colors">
+                      {PHONE_DISPLAY}
+                    </a>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-brand-cream flex items-center justify-center flex-shrink-0">
+                    <Clock className="w-4 h-4 text-brand-brown" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-brand-brown">Hours</p>
+                    <p className="text-sm text-muted-foreground">Open daily — 10:00 AM to 10:00 PM</p>
+                  </div>
+                </li>
+              </ul>
             </div>
 
             {/* Map */}
-            <div className="rounded-3xl overflow-hidden shadow-card h-64">
+            <div className="rounded-3xl overflow-hidden shadow-card">
               <iframe
-                title="Pind Pahadi Restaurant Location"
                 src={MAPS_EMBED_URL}
                 width="100%"
-                height="100%"
+                height="300"
                 style={{ border: 0 }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
+                title="Pind Pahadi Restaurant Location"
               />
             </div>
           </div>

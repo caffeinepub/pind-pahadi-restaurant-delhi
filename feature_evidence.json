@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-change-the-admin-dashboard-route-in-the-frontend-router-from-admin-to-pindpahadi-manage-2024-update-all-internal-links-redirects-and-references-that-point-to-admin-including-any-navigation-guards-or-route-definitions-in-app-tsx-to-use-the-new-path-pindpahadi-manage-2024-the-old-admin-path-should-no-longer-resolve-to-the-dashboard",
-      "featureTitle": "Change the admin dashboard route in the frontend router from '/admin' to '/pindpahadi-manage-2024'. Update all internal links, redirects, and references that point to '/admin' (including any navigation guards or route definitions in App.tsx) to use the new path '/pindpahadi-manage-2024'. The old '/admin' path should no longer resolve to the dashboard.",
+      "featureId": "feature-update-all-references-to-the-app-s-public-url-from-pindpahadirestrurent-caffeine-xyz-to-pindpahadirestrurent-caffein-xyz-note-single-e-in-caffein-this-includes-the-canonical-url-meta-tag-in-frontend-index-html-the-open-graph-url-the-json-ld-restaurant-schema-url-and-any-hardcoded-domain-references-across-the-codebase",
+      "featureTitle": "Update all references to the app's public URL from 'pindpahadirestrurent.caffeine.xyz' to 'pindpahadirestrurent.caffein.xyz' (note: single 'e' in 'caffein'). This includes the canonical URL meta tag in frontend/index.html, the Open Graph URL, the JSON-LD Restaurant schema URL, and any hardcoded domain references across the codebase.",
       "files": [
-        "frontend/src/App.tsx"
+        "frontend/index.html"
       ],
       "components": [
         "authorization@4.0.0",
@@ -16,7 +16,27 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-18"
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-fix-the-table-reservation-booking-feature-so-that-it-works-correctly-when-accessed-from-any-device-not-just-the-device-on-which-the-booking-was-originally-initiated-investigate-and-resolve-any-issues-in-the-booking-submission-flow-in-frontend-src-pages-contact-tsx-and-frontend-src-hooks-usequeries-ts-that-could-cause-failures-on-other-devices-such-as-device-specific-actor-initialization-anonymous-identity-mismatches-or-session-actor-not-being-properly-set-up-for-unauthenticated-users-on-a-fresh-device",
+      "featureTitle": "Fix the table reservation (booking) feature so that it works correctly when accessed from any device, not just the device on which the booking was originally initiated. Investigate and resolve any issues in the booking submission flow in frontend/src/pages/Contact.tsx and frontend/src/hooks/useQueries.ts that could cause failures on other devices — such as device-specific actor initialization, anonymous identity mismatches, or session/actor not being properly set up for unauthenticated users on a fresh device.",
+      "files": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/Contact.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
       ],
       "confidence": "high"
     }

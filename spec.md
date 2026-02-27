@@ -1,11 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Change the admin dashboard URL path from `/admin` to a less obvious route `/pindpahadi-manage-2024` to make it harder to discover.
+**Goal:** Fix cross-device table reservation functionality and update the canonical/public URL to the correct domain.
 
 **Planned changes:**
-- Update the frontend router route definition from `/admin` to `/pindpahadi-manage-2024`
-- Update all internal links, programmatic navigations, and redirects that referenced `/admin` to use `/pindpahadi-manage-2024`
-- Ensure navigating to `/admin` no longer loads the admin dashboard (404 or redirect to home)
+- Update all hardcoded domain references from `pindpahadirestrurent.caffeine.xyz` to `pindpahadirestrurent.caffein.xyz` (canonical URL meta tag, Open Graph og:url, JSON-LD Restaurant schema URL) in `frontend/index.html`
+- Fix the table reservation/booking flow so it works on any device by ensuring the anonymous actor is correctly initialized for unauthenticated users on fresh devices, without relying on device-local session state or cached actor instances
+- Investigate and resolve issues in `frontend/src/pages/Contact.tsx` and `frontend/src/hooks/useQueries.ts` related to actor initialization, anonymous identity mismatches, or session setup for unauthenticated booking submissions
 
-**User-visible outcome:** The admin dashboard is only accessible at `/pindpahadi-manage-2024`; visiting `/admin` no longer works. The new path remains hidden from all visible navigation elements.
+**User-visible outcome:** Users on any device or browser can successfully submit a table reservation from the Contact/Book Table page, and all bookings appear correctly in the admin dashboard regardless of which device initiated them.

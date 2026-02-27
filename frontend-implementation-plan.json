@@ -1,42 +1,50 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Change admin dashboard URL path to a custom less-obvious route",
+  "title": "Fix cross-device table reservation and update canonical URL",
   "requirements": [
     {
-      "id": "REQ-18",
-      "summary": "Change the admin dashboard route from '/admin' to '/pindpahadi-manage-2024' and update all internal references",
+      "id": "REQ-1",
+      "summary": "Update all references to the app's public URL from 'pindpahadirestrurent.caffeine.xyz' to 'pindpahadirestrurent.caffein.xyz' (single 'e' in 'caffein')",
       "acceptanceCriteria": [
-        "Navigating to '/pindpahadi-manage-2024' loads the password-protected admin dashboard",
-        "Navigating to '/admin' no longer loads the admin dashboard (404 or redirects to home)",
-        "All internal links or programmatic navigations that previously pointed to '/admin' now point to '/pindpahadi-manage-2024'",
-        "The new path does not appear in the main navigation header or mobile sticky bar"
+        "The canonical URL in index.html points to https://pindpahadirestrurent.caffein.xyz",
+        "Open Graph og:url meta tag uses the new domain",
+        "JSON-LD Restaurant schema URL uses the new domain",
+        "No remaining references to the old 'caffeine.xyz' domain exist in the frontend source files"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/index.html",
           "operation": "modify",
-          "description": "Update the router configuration to change the admin route path from '/admin' to '/pindpahadi-manage-2024'. Modify the Route component definition for the admin dashboard to use the new path. Ensure the route remains standalone without the site layout wrapper (no Header/Footer/MobileStickyBar). Remove or update any route guards or redirects that reference '/admin'."
-        },
-        {
-          "path": "frontend/src/pages/Admin.tsx",
-          "operation": "modify",
-          "description": "Update any internal navigation logic, programmatic redirects, or hardcoded path references within the admin dashboard component that point to '/admin' to use '/pindpahadi-manage-2024' instead. Ensure success/failure flows and any redirect logic after password entry use the correct new path."
-        },
-        {
-          "path": "frontend/src/components/Header.tsx",
-          "operation": "modify",
-          "description": "Review the desktop navigation links and mobile hamburger drawer menu. If any link to '/admin' exists (unlikely per current implementation), remove it or ensure it does not expose the new admin path '/pindpahadi-manage-2024'. Confirm the admin route remains hidden from all visible navigation."
-        },
-        {
-          "path": "frontend/src/components/MobileStickyBar.tsx",
-          "operation": "modify",
-          "description": "Verify that the mobile sticky navigation bar does not include any link or reference to '/admin' or '/pindpahadi-manage-2024'. Ensure the new admin path remains unexposed in the mobile navigation UI."
+          "description": "Update the canonical link href from 'https://pindpahadirestrurent.caffeine.xyz/' to 'https://pindpahadirestrurent.caffein.xyz/'. Update the Open Graph og:url meta tag property content to use the new domain. Update the JSON-LD Restaurant schema's url field to 'https://pindpahadirestrurent.caffein.xyz'. Verify all three locations are updated with the corrected domain spelling (single 'e' in 'caffein')."
         },
         {
           "path": "frontend/src/components/Footer.tsx",
           "operation": "modify",
-          "description": "Review the footer quick navigation links. If any link to '/admin' exists, remove it or ensure the new admin path '/pindpahadi-manage-2024' is not exposed in the footer navigation."
+          "description": "Update any hardcoded domain references from 'pindpahadirestrurent.caffeine.xyz' to 'pindpahadirestrurent.caffein.xyz' if present in the footer attribution link or other footer content."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Fix the table reservation feature to work correctly from any device by ensuring anonymous actor initialization is device-independent",
+      "acceptanceCriteria": [
+        "A user on any device (mobile or desktop, any browser) can open the Contact/Book Table page and submit a reservation without errors",
+        "The booking submission does not depend on any device-local session state or previously cached actor",
+        "Submitted bookings from any device appear correctly in the admin dashboard",
+        "The anonymous actor is correctly initialized for unauthenticated booking submissions on fresh devices",
+        "Error messages, if any, are informative and actionable for the user"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Contact.tsx",
+          "operation": "modify",
+          "description": "Review the booking form submission flow to ensure it properly handles cases where the actor may not be immediately available on fresh devices. Add defensive checks for actor availability before calling submitBooking. Ensure the form validation and error states provide clear feedback if the backend connection fails. Add loading states during actor initialization if needed. Verify that the screenshot upload and all form fields work correctly across devices without relying on device-specific cached state."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Review the useSubmitBooking mutation hook to ensure it properly waits for the actor to be available before attempting to call submitBooking. Add error handling that distinguishes between actor initialization failures and booking submission failures. Ensure the mutation does not depend on any device-local state or cached identity that may not exist on a fresh device. Verify the enabled condition properly reflects actor availability. Add retry logic if appropriate for transient connection issues."
         }
       ]
     }
