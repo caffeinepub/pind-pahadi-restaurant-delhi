@@ -1,91 +1,14 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-27T13:00:46.482Z",
-  "summary": "The diff implements the vast majority of the build request requirements. All frontend pages (Home, Menu, About Us, Reviews, Contact), components (Header, Footer, MobileStickyBar, WhatsAppButton, StarRating), the Motoko backend actor, routing, styling, and SEO are present. A few minor gaps exist: the header does not display the full English restaurant name 'Pind Pahadi Restaurant Delhi' (truncated to 'Pind Pahadi'), and the Hindi subtitle in the header shows without 'दिल्ली'. Additionally, the backend uses a mutable List rather than a stable variable. Hallucinated features include admin functions, Internet Identity auth, and extra testimonial cards.",
-  "missing_requirements": [
-    {
-      "id": "REQ-2",
-      "requirement": "Header must display the full restaurant name 'Pind Pahadi Restaurant Delhi' in English and 'पिंड पहाड़ी रेस्टोरेंट दिल्ली' in Hindi",
-      "reason": "Header.tsx shows 'Pind Pahadi' (not 'Pind Pahadi Restaurant Delhi') and 'पिंड पहाड़ी रेस्टोरेंट' (missing 'दिल्ली'). The full bilingual name as specified is not rendered.",
-      "evidence": [
-        "frontend/src/components/Header.tsx"
-      ]
-    },
-    {
-      "id": "REQ-12",
-      "requirement": "Bookings must be stored in a stable array or list in the actor",
-      "reason": "The backend uses List.empty() which is not declared as a stable variable, meaning bookings would not survive canister upgrades. The AC specifically requires a stable array or list.",
-      "evidence": [
-        "backend/main.mo"
-      ]
-    }
-  ],
-  "hallucinated_features": [
-    {
-      "description": "Admin-only getAllBookings and clearAllBookings functions with access control infrastructure",
-      "reason": "The build request only asked for a submitBooking function. The backend implements getAllBookings and clearAllBookings plus MixinAuthorization and AccessControl imports — none of which were requested.",
-      "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "description": "Internet Identity authentication integration (InternetIdentityProvider, useInternetIdentity hook, AuthClient)",
-      "reason": "The build request explicitly lists 'User authentication or Internet Identity login' as a non-goal. The frontend wraps the app in InternetIdentityProvider and the actor hook handles authenticated identities.",
-      "evidence": [
-        "frontend/src/main.tsx",
-        "frontend/src/hooks/useInternetIdentity.ts",
-        "frontend/src/hooks/useActor.ts"
-      ]
-    },
-    {
-      "description": "Admin token initialization via URL parameter (caffeineAdminToken) and _initializeAccessControlWithSecret call",
-      "reason": "Not requested in the build spec. The actor hook calls actor._initializeAccessControlWithSecret(adminToken) after reading a secret from URL params.",
-      "evidence": [
-        "frontend/src/hooks/useActor.ts",
-        "frontend/src/utils/urlParams.ts"
-      ]
-    },
-    {
-      "description": "Extra testimonial cards on the Reviews page beyond the three specified",
-      "reason": "REQ-10 specifies displaying the three real testimonials. The Reviews page hard-codes 6 testimonial cards adding Sunita Verma, Deepak Singh, and Kavita Joshi beyond the three required.",
-      "evidence": [
-        "frontend/src/pages/Reviews.tsx"
-      ]
-    },
-    {
-      "description": "Rating breakdown bar chart on the Reviews page",
-      "reason": "The build request does not mention a star-breakdown distribution chart. The Reviews page renders a bar chart showing per-star counts.",
-      "evidence": [
-        "frontend/src/pages/Reviews.tsx"
-      ]
-    }
-  ],
-  "confidence": 0.82,
+  "generatedAt": "2026-02-27T14:00:38.749Z",
+  "summary": "REQ-18 is fully implemented. The admin route has been changed from '/admin' to '/pindpahadi-manage-2024' in App.tsx. The admin route is a direct child of rootRoute (bypassing the siteLayoutRoute that includes Header, Footer, and MobileStickyBar), ensuring the new path does not appear in navigation chrome. The file summaries confirm the new path is in use and no '/admin' route remains.",
+  "missing_requirements": [],
+  "hallucinated_features": [],
+  "confidence": 0.97,
   "changed_files": [
-    "all_files_summary.json",
-    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/index.css",
-    "frontend/index.html",
     "frontend/src/App.tsx",
-    "frontend/src/components/Footer.tsx",
-    "frontend/src/components/Header.tsx",
-    "frontend/src/components/MobileStickyBar.tsx",
-    "frontend/src/components/StarRating.tsx",
-    "frontend/src/components/WhatsAppButton.tsx",
-    "frontend/src/hooks/useActor.ts",
-    "frontend/src/hooks/useInternetIdentity.ts",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/index.css",
-    "frontend/src/main.tsx",
-    "frontend/src/pages/AboutUs.tsx",
-    "frontend/src/pages/Contact.tsx",
-    "frontend/src/pages/Home.tsx",
-    "frontend/src/pages/Menu.tsx",
-    "frontend/src/pages/Reviews.tsx",
-    "frontend/src/utils/urlParams.ts",
-    "frontend/tailwind.config.js",
     "project_state.json"
   ]
 }

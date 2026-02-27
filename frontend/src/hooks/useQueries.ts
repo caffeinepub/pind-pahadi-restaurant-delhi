@@ -1,5 +1,6 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useActor } from './useActor';
+import type { Booking } from '../backend';
 
 export function useSubmitBooking() {
   const { actor } = useActor();
@@ -24,5 +25,19 @@ export function useSubmitBooking() {
       );
       return result;
     },
+  });
+}
+
+export function useGetAllBookings(enabled: boolean) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<Booking[]>({
+    queryKey: ['allBookings'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllBookings();
+    },
+    enabled: !!actor && !isFetching && enabled,
+    retry: false,
   });
 }

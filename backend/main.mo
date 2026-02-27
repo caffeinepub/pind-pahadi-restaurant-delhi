@@ -1,11 +1,13 @@
 import List "mo:core/List";
-import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
 import Map "mo:core/Map";
 import Principal "mo:core/Principal";
+import Runtime "mo:core/Runtime";
 import Order "mo:core/Order";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+
+
 
 actor {
   let accessControlState = AccessControl.initState();
@@ -34,7 +36,10 @@ actor {
 
   let bookings = List.empty<Booking>();
 
-  public shared func submitBooking(name : Text, phone : Text, guests : Nat, date : Text, time : Text, specialRequest : Text) : async Bool {
+  public shared ({ caller }) func submitBooking(name : Text, phone : Text, guests : Nat, date : Text, time : Text, specialRequest : Text) : async Bool {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can submit bookings");
+    };
     let booking : Booking = {
       name;
       phone;
@@ -48,14 +53,14 @@ actor {
   };
 
   public query ({ caller }) func getAllBookings() : async [Booking] {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can view all bookings");
+    if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
+      Runtime.trap("Unauthorized: Only admins can get all bookings");
     };
     bookings.values().toArray().sort(BookingModule.compareByDate);
   };
 
   public shared ({ caller }) func clearAllBookings() : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+    if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
       Runtime.trap("Unauthorized: Only admins can clear bookings");
     };
     bookings.clear();

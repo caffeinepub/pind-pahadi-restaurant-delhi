@@ -1,17 +1,17 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 3,
+  "projectStateVersion": 7,
   "summary": "Restaurant website for Pind Pahadi Restaurant Delhi — a modern, mobile-first, conversion-focused multi-page website with pages for Home, Menu, About Us, Reviews, and Contact/Book Table. Design uses earthy Punjabi tones (rustic brown, mustard yellow, warm red) with Poppins/Inter fonts and bilingual (English + Hindi) support. Primary goals: drive inbound calls, table bookings, and online order submissions.",
   "architectural_notes": [
     "Multi-page site: Home, Menu, About Us, Reviews, Contact/Book Table",
     "Mobile-first design with sticky bottom CTA bar (Call, Directions, Book Table)",
     "Color palette: white, rustic brown, mustard yellow, warm red; fonts: Poppins/Inter",
     "Bilingual support: English + Hindi (Devanagari) for restaurant name and headers",
-    "Page load target under 3 seconds; SSL required"
+    "Page load target under 3 seconds; SSL required",
+    "Admin dashboard: password-protected page listing all booking submissions; no email notifications (requires paid plan)"
   ],
   "known_issues": [],
   "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- Richly lit overhead spread of authentic Pahadi and Punjabi signature dishes on a rustic wooden table — warm tones, moody restaurant lighting, hero composition (hero-bg.dim_1400x800.png)\n- Steamed Veg Momos arranged on a dark slate plate with chutney, close-up food photography style (veg-momos.dim_400x300.png)\n- Fresh Veg Burger with layered fillings on a wooden board, vibrant colors, appetizing close-up (veg-burger.dim_400x300.png)\n- Hot cup of frothy coffee in a ceramic mug on a rustic wooden surface with warm bokeh background (coffee.dim_400x300.png)\n- Traditional Punjabi Thali with multiple bowls of dal, sabzi, roti, rice, and pickle on a brass thali, overhead shot (punjabi-thali.dim_400x300.png)\n- Warm and inviting Indian restaurant interior with earthy decor, string lights, wooden furniture, and a cozy family-dining ambience (ambience.dim_400x300.png)",
   "existing_features": [
     {
       "id": "feature-apply-a-cohesive-visual-theme-throughout-the-entire-website-earthy-punjabi-tones-rustic-brown-6b3a2a-mustard-yellow-e8a020-warm-red-c0392b-off-white-faf7f2-poppins-or-inter-as-the-primary-sans-serif-font-generous-whitespace-and-strong-high-contrast-cta-buttons-the-overall-feel-should-be-modern-premium-with-an-authentic-punjabi-dhaba-character",
@@ -124,6 +124,22 @@
         "REQ-15"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-create-a-new-frontend-page-at-route-admin-that-implements-a-password-protected-admin-dashboard-the-page-must-show-a-login-form-with-a-single-password-field-and-a-login-button-on-correct-password-entry-hardcoded-admin-password-display-a-full-width-table-listing-all-booking-submissions-fetched-from-the-backend-with-columns-name-phone-guests-date-time-and-special-request-include-a-logout-button-to-return-to-the-login-screen-style-the-page-consistently-with-the-site-s-earthy-punjabi-theme-rustic-brown-mustard-yellow-the-admin-route-must-not-appear-in-the-main-navigation-header-or-mobile-sticky-bar",
+      "title": "Create a new frontend page at route `/admin` that implements a password-protected admin dashboard. The page must show a login form with a single password field and a 'Login' button. On correct password entry (hardcoded admin password), display a full-width table listing all booking submissions fetched from the backend, with columns: Name, Phone, Guests, Date, Time, and Special Request. Include a 'Logout' button to return to the login screen. Style the page consistently with the site's earthy Punjabi theme (rustic brown, mustard yellow). The admin route must NOT appear in the main navigation header or mobile sticky bar.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-change-the-admin-dashboard-route-in-the-frontend-router-from-admin-to-pindpahadi-manage-2024-update-all-internal-links-redirects-and-references-that-point-to-admin-including-any-navigation-guards-or-route-definitions-in-app-tsx-to-use-the-new-path-pindpahadi-manage-2024-the-old-admin-path-should-no-longer-resolve-to-the-dashboard",
+      "title": "Change the admin dashboard route in the frontend router from '/admin' to '/pindpahadi-manage-2024'. Update all internal links, redirects, and references that point to '/admin' (including any navigation guards or route definitions in App.tsx) to use the new path '/pindpahadi-manage-2024'. The old '/admin' path should no longer resolve to the dashboard.",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -193,6 +209,26 @@
       "reqIds": [
         "REQ-12"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-23",
+      "summary": "Password-protected admin dashboard page that displays all booking submissions in a table (Name, Phone, Guests, Date, Time, Special Request)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-24",
+      "summary": "Add a `getAllBookings` function to the backend actor that returns all stored booking submissions as an array. This function must be restricted to an admin-only caller using hardcoded access control (a fixed admin principal or a simple password/PIN check stored in stable state). Also ensure the `submitBooking` function stores all six fields (name, phone, guests, date, time, specialRequest) in stable memory so bookings persist across upgrades.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-25",
+      "summary": "Change the admin dashboard URL path from /admin to a custom less-obvious path chosen by the user",
+      "reqIds": [],
       "status": "pending"
     }
   ],
