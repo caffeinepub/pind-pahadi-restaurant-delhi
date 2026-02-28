@@ -1,52 +1,71 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix deployment and backend connection issues",
+  "title": "Fix booking submissions not appearing in admin dashboard",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Fix the backend canister connection so that the booking form on the Contact page successfully connects to the backend without showing connection errors",
+      "id": "REQ-2",
+      "summary": "Fix the booking submission mutation to correctly call the backend actor method and surface errors to the user",
       "acceptanceCriteria": [
-        "The booking form on the Contact page loads without any connection error messages",
-        "Submitting the booking form successfully sends data to the backend canister",
-        "The backend actor initializes correctly on page load without requiring manual refresh"
+        "Submitting the booking form on the Contact/booking page invokes the backend actor's booking submission method without throwing or silently failing.",
+        "If the submission fails, an error message is displayed to the user on the form.",
+        "On successful submission, the user sees a success confirmation."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useActor.ts",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Review and enhance the backend actor initialization logic to ensure proper connection establishment. Add connection state tracking and improve error handling during actor creation. Ensure the actor is fully initialized before being made available to consuming components."
+          "description": "Fix the useSubmitBooking mutation to call actor.submitBooking with the correct arguments (name, phone, guests as bigint, date, time, specialRequest, screenshotFileName as string | null). Ensure the mutation properly handles success/failure responses and returns them to the caller. Remove any silent error swallowing and allow errors to propagate to the UI layer."
         },
         {
           "path": "frontend/src/pages/Contact.tsx",
           "operation": "modify",
-          "description": "Update the Contact page to properly handle backend connection states. Ensure the booking form waits for the actor to be fully initialized before allowing submissions. Display appropriate connection status feedback to users during the initialization phase."
+          "description": "Update the booking form submission handler to use the fixed useSubmitBooking mutation, display error messages to the user when submission fails (using the mutation's error state), and show a success confirmation message when submission succeeds. Ensure the form properly converts the guests input to a bigint before passing it to the mutation."
         }
       ]
     },
     {
-      "id": "REQ-2",
-      "summary": "Add retry logic and a user-friendly loading state to the booking form so that if the backend canister takes a moment to warm up after deployment, the form gracefully retries the connection and shows a friendly loading indicator instead of an error",
+      "id": "REQ-3",
+      "summary": "Fix the bookings query and Admin dashboard to correctly fetch and display all bookings with proper authentication",
       "acceptanceCriteria": [
-        "The booking form shows a loading spinner or 'Connecting...' message while the backend actor is initializing",
-        "The form automatically retries connecting to the backend at least 3 times before showing an error",
-        "Error messages are user-friendly and suggest refreshing if the connection ultimately fails"
+        "After logging into the admin dashboard, all submitted bookings are fetched and listed in the 'All Reservations' table.",
+        "The 'Total Bookings', 'Total Guests', 'Total Deposits', and 'Today' summary counters reflect actual data from fetched bookings.",
+        "Clicking the Refresh button re-fetches bookings from the backend and updates the list.",
+        "The empty state ('No reservations yet') is only shown when there are genuinely zero bookings stored."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useActor.ts",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Implement retry logic with exponential backoff for actor initialization. Add at least 3 retry attempts with appropriate delays. Expose connection state (connecting, connected, retrying, failed) to consuming components. Track retry count and provide detailed connection status information."
+          "description": "Fix the useGetBookings query to call actor.getAllBookings() (not getBookings) using an authenticated actor. Ensure the query is enabled only when the actor is available and uses the correct queryKey ['bookings']. Add proper error handling and typing for the returned Booking array with status field."
         },
+        {
+          "path": "frontend/src/pages/Admin.tsx",
+          "operation": "modify",
+          "description": "Update the Admin dashboard to use the fixed useGetBookings query with proper authentication checks. Wire the Refresh button to invalidate the 'bookings' query key and trigger a refetch. Update the summary counters (Total Bookings, Total Guests, Total Deposits, Today) to calculate from the fetched bookings array. Ensure the empty state only displays when bookings.length === 0. Add authorization checks using the authorization component to verify the user is an admin before showing the dashboard."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Add Confirm and Reject action buttons to each booking row with status badges",
+      "acceptanceCriteria": [
+        "Each booking row in the admin dashboard displays a status badge (Pending, Confirmed, or Rejected).",
+        "An admin can click 'Confirm' on a pending booking to mark it as confirmed; the status updates in the UI immediately.",
+        "An admin can click 'Reject' on a pending booking to mark it as rejected; the status updates in the UI immediately.",
+        "The backend stores and returns the booking status correctly.",
+        "Already-confirmed or already-rejected bookings show disabled or appropriately changed action buttons."
+      ],
+      "file_operations": [
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Enhance the useSubmitBooking mutation hook to handle connection retries gracefully. Ensure the mutation waits for actor availability and includes retry logic for transient connection failures. Update error handling to provide user-friendly messages distinguishing between connection issues and submission errors."
+          "description": "Add useConfirmBooking and useRejectBooking mutations that call actor.confirmBooking(id) and actor.rejectBooking(id) respectively. Both mutations should invalidate the 'bookings' query on success to trigger a refetch and update the UI. Include proper error handling and success callbacks."
         },
         {
-          "path": "frontend/src/pages/Contact.tsx",
+          "path": "frontend/src/pages/Admin.tsx",
           "operation": "modify",
-          "description": "Add a user-friendly loading state UI component that displays during backend connection initialization. Show a 'Connecting to server...' message with a spinner while the actor is initializing or retrying. Display retry progress if applicable. Provide a friendly error message with refresh instructions if connection ultimately fails after all retry attempts. Disable form submission during connection phase."
+          "description": "Update the bookings table to display a status badge for each booking showing 'Pending', 'Confirmed', or 'Rejected' based on booking.status. Add 'Confirm' and 'Reject' action buttons to each row that call the useConfirmBooking and useRejectBooking mutations respectively. Disable or hide the action buttons for bookings that are already confirmed or rejected. Ensure the booking ID is correctly passed to the mutations (bookings must be returned with IDs from the backend or tracked by index)."
         }
       ]
     }

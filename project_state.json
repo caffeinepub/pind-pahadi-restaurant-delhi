@@ -1,31 +1,49 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
+  "summary": "Project involves a table booking system with a booking form and admin dashboard for confirming/rejecting bookings.",
   "architectural_notes": [],
   "known_issues": [
-    "Deployment/publish issue: app not publishing successfully to production, backend canister connection errors on booking form"
+    "Submitted table booking form entries are not appearing in the admin dashboard, preventing admins from confirming or rejecting bookings."
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-fix-the-backend-canister-connection-so-that-the-booking-form-on-the-contact-page-successfully-connects-to-the-backend-without-showing-still-connecting-to-the-server-please-wait-a-moment-and-try-again-errors",
-      "title": "Fix the backend canister connection so that the booking form on the Contact page successfully connects to the backend without showing 'Still connecting to the server. Please wait a moment and try again.' errors.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-retry-logic-and-a-user-friendly-loading-state-to-the-booking-form-so-that-if-the-backend-canister-takes-a-moment-to-warm-up-after-deployment-the-form-gracefully-retries-the-connection-and-shows-a-friendly-loading-indicator-instead-of-an-error",
-      "title": "Add retry logic and a user-friendly loading state to the booking form so that if the backend canister takes a moment to warm up after deployment, the form gracefully retries the connection and shows a friendly loading indicator instead of an error.",
+      "id": "feature-fix-the-usesubmitbooking-mutation-in-frontend-src-hooks-usequeries-ts-to-call-the-correct-backend-actor-method-with-the-correct-argument-shape-for-submitting-a-booking-and-ensure-errors-are-surfaced-to-the-user-rather-than-silently-swallowed",
+      "title": "Fix the `useSubmitBooking` mutation in `frontend/src/hooks/useQueries.ts` to call the correct backend actor method with the correct argument shape for submitting a booking, and ensure errors are surfaced to the user rather than silently swallowed.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-fix-the-usegetbookings-query-in-frontend-src-hooks-usequeries-ts-and-the-admin-dashboard-page-frontend-src-pages-admin-tsx-to-correctly-fetch-all-bookings-from-the-backend-actor-and-display-them-in-the-reservations-table-the-query-must-use-an-authenticated-actor-post-internet-identity-login-and-invalidate-refetch-when-the-refresh-button-is-clicked",
+      "title": "Fix the `useGetBookings` query in `frontend/src/hooks/useQueries.ts` and the Admin dashboard page (`frontend/src/pages/Admin.tsx`) to correctly fetch all bookings from the backend actor and display them in the reservations table. The query must use an authenticated actor (post Internet Identity login) and invalidate/refetch when the Refresh button is clicked.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-confirm-valid-and-reject-invalid-action-buttons-to-each-booking-row-in-the-admin-dashboard-frontend-src-pages-admin-tsx-these-buttons-should-call-the-corresponding-backend-methods-to-update-a-booking-s-status-to-confirmed-or-rejected-the-booking-row-should-visually-reflect-the-current-status-e-g-a-status-badge-pending-confirmed-rejected",
+      "title": "Add 'Confirm' (valid) and 'Reject' (invalid) action buttons to each booking row in the admin dashboard (`frontend/src/pages/Admin.tsx`). These buttons should call the corresponding backend methods to update a booking's status to confirmed or rejected. The booking row should visually reflect the current status (e.g., a status badge: Pending / Confirmed / Rejected).",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
     }
   ],
-  "new_feature_requests": [],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Fix the backend `bookTable` function to correctly persist submitted bookings into stable storage so that entries are reliably saved and retrievable across calls. Audit the booking submission logic in `backend/main.mo` for any issues such as using a non-stable variable, failing silently, or not appending to the correct data structure.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
   "projectName": "Pind Pahadi Restaurant",
   "clarification_mode": "instant",
   "clarification_rounds": 0

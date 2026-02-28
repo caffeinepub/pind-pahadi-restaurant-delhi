@@ -11,6 +11,7 @@ import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
 export interface Booking {
+  'status' : BookingStatus,
   'screenshotFileName' : [] | [string],
   'date' : string,
   'name' : string,
@@ -20,6 +21,9 @@ export interface Booking {
   'phone' : string,
   'guests' : bigint,
 }
+export type BookingStatus = { 'pending' : null } |
+  { 'rejected' : null } |
+  { 'confirmed' : null };
 export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
@@ -28,13 +32,21 @@ export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'clearAllBookings' : ActorMethod<[], undefined>,
+  'confirmBooking' : ActorMethod<[bigint], undefined>,
+  'deleteBooking' : ActorMethod<[bigint], undefined>,
   'getAllBookings' : ActorMethod<[], Array<Booking>>,
+  'getBookingsByStatus' : ActorMethod<[BookingStatus], Array<Booking>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'rejectBooking' : ActorMethod<[bigint], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'submitBooking' : ActorMethod<
+    [string, string, bigint, string, string, string, [] | [string]],
+    boolean
+  >,
+  'submitBookingInternal' : ActorMethod<
     [string, string, bigint, string, string, string, [] | [string]],
     boolean
   >,

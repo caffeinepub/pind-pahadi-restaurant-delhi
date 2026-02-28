@@ -2,27 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-backend-canister-connection-so-that-the-booking-form-on-the-contact-page-successfully-connects-to-the-backend-without-showing-still-connecting-to-the-server-please-wait-a-moment-and-try-again-errors",
-      "featureTitle": "Fix the backend canister connection so that the booking form on the Contact page successfully connects to the backend without showing 'Still connecting to the server. Please wait a moment and try again.' errors.",
-      "files": [
-        "frontend/src/pages/Contact.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-retry-logic-and-a-user-friendly-loading-state-to-the-booking-form-so-that-if-the-backend-canister-takes-a-moment-to-warm-up-after-deployment-the-form-gracefully-retries-the-connection-and-shows-a-friendly-loading-indicator-instead-of-an-error",
-      "featureTitle": "Add retry logic and a user-friendly loading state to the booking form so that if the backend canister takes a moment to warm up after deployment, the form gracefully retries the connection and shows a friendly loading indicator instead of an error.",
+      "featureId": "feature-fix-the-usesubmitbooking-mutation-in-frontend-src-hooks-usequeries-ts-to-call-the-correct-backend-actor-method-with-the-correct-argument-shape-for-submitting-a-booking-and-ensure-errors-are-surfaced-to-the-user-rather-than-silently-swallowed",
+      "featureTitle": "Fix the `useSubmitBooking` mutation in `frontend/src/hooks/useQueries.ts` to call the correct backend actor method with the correct argument shape for submitting a booking, and ensure errors are surfaced to the user rather than silently swallowed.",
       "files": [
         "frontend/src/hooks/useQueries.ts",
         "frontend/src/pages/Contact.tsx"
@@ -37,6 +18,46 @@
       ],
       "testIds": [
         "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-fix-the-usegetbookings-query-in-frontend-src-hooks-usequeries-ts-and-the-admin-dashboard-page-frontend-src-pages-admin-tsx-to-correctly-fetch-all-bookings-from-the-backend-actor-and-display-them-in-the-reservations-table-the-query-must-use-an-authenticated-actor-post-internet-identity-login-and-invalidate-refetch-when-the-refresh-button-is-clicked",
+      "featureTitle": "Fix the `useGetBookings` query in `frontend/src/hooks/useQueries.ts` and the Admin dashboard page (`frontend/src/pages/Admin.tsx`) to correctly fetch all bookings from the backend actor and display them in the reservations table. The query must use an authenticated actor (post Internet Identity login) and invalidate/refetch when the Refresh button is clicked.",
+      "files": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/Admin.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-confirm-valid-and-reject-invalid-action-buttons-to-each-booking-row-in-the-admin-dashboard-frontend-src-pages-admin-tsx-these-buttons-should-call-the-corresponding-backend-methods-to-update-a-booking-s-status-to-confirmed-or-rejected-the-booking-row-should-visually-reflect-the-current-status-e-g-a-status-badge-pending-confirmed-rejected",
+      "featureTitle": "Add 'Confirm' (valid) and 'Reject' (invalid) action buttons to each booking row in the admin dashboard (`frontend/src/pages/Admin.tsx`). These buttons should call the corresponding backend methods to update a booking's status to confirmed or rejected. The booking row should visually reflect the current status (e.g., a status badge: Pending / Confirmed / Rejected).",
+      "files": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/Admin.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
       ],
       "confidence": "high"
     }

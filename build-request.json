@@ -1,56 +1,94 @@
 {
   "kind": "build_request",
-  "title": "Fix deployment and backend connection issues",
+  "title": "Fix booking submissions not appearing in admin dashboard",
   "projectName": "Pind Pahadi Restaurant",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the backend canister connection so that the booking form on the Contact page successfully connects to the backend without showing 'Still connecting to the server. Please wait a moment and try again.' errors.",
-      "target": "both",
+      "text": "Fix the backend `bookTable` function to correctly persist submitted bookings into stable storage so that entries are reliably saved and retrievable across calls. Audit the booking submission logic in `backend/main.mo` for any issues such as using a non-stable variable, failing silently, or not appending to the correct data structure.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-recent"
+          "msg-1"
         ],
         "quotes": [
-          "Still connecting to the server. Please wait a moment and try again.",
-          "it no publish"
+          "i submit the form of table book but not showing at admin dashboard"
         ]
       },
       "acceptanceCriteria": [
-        "The booking form on the Contact page loads without any connection error messages",
-        "Submitting the booking form successfully sends data to the backend canister",
-        "The backend actor initializes correctly on page load without requiring manual refresh"
+        "A booking submitted via the table booking form is stored in the backend canister's stable state.",
+        "Calling `getBookings` (or equivalent) after a form submission returns the newly submitted booking.",
+        "Bookings persist after canister upgrades (stable variable used for storage)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Add retry logic and a user-friendly loading state to the booking form so that if the backend canister takes a moment to warm up after deployment, the form gracefully retries the connection and shows a friendly loading indicator instead of an error.",
+      "text": "Fix the `useSubmitBooking` mutation in `frontend/src/hooks/useQueries.ts` to call the correct backend actor method with the correct argument shape for submitting a booking, and ensure errors are surfaced to the user rather than silently swallowed.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-recent"
+          "msg-1"
         ],
         "quotes": [
-          "The canister may still be warming up after the latest deployment"
+          "i submit the form of table book but not showing at admin dashboard"
         ]
       },
       "acceptanceCriteria": [
-        "The booking form shows a loading spinner or 'Connecting...' message while the backend actor is initializing",
-        "The form automatically retries connecting to the backend at least 3 times before showing an error",
-        "Error messages are user-friendly and suggest refreshing if the connection ultimately fails"
+        "Submitting the booking form on the Contact/booking page invokes the backend actor's booking submission method without throwing or silently failing.",
+        "If the submission fails, an error message is displayed to the user on the form.",
+        "On successful submission, the user sees a success confirmation."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Fix the `useGetBookings` query in `frontend/src/hooks/useQueries.ts` and the Admin dashboard page (`frontend/src/pages/Admin.tsx`) to correctly fetch all bookings from the backend actor and display them in the reservations table. The query must use an authenticated actor (post Internet Identity login) and invalidate/refetch when the Refresh button is clicked.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "not showing at admin dashboard to confirm booking and send valid or invalid"
+        ]
+      },
+      "acceptanceCriteria": [
+        "After logging into the admin dashboard, all submitted bookings are fetched and listed in the 'All Reservations' table.",
+        "The 'Total Bookings', 'Total Guests', 'Total Deposits', and 'Today' summary counters reflect actual data from fetched bookings.",
+        "Clicking the Refresh button re-fetches bookings from the backend and updates the list.",
+        "The empty state ('No reservations yet') is only shown when there are genuinely zero bookings stored."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Add 'Confirm' (valid) and 'Reject' (invalid) action buttons to each booking row in the admin dashboard (`frontend/src/pages/Admin.tsx`). These buttons should call the corresponding backend methods to update a booking's status to confirmed or rejected. The booking row should visually reflect the current status (e.g., a status badge: Pending / Confirmed / Rejected).",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "to confirm booking and send valid or invalid"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Each booking row in the admin dashboard displays a status badge (Pending, Confirmed, or Rejected).",
+        "An admin can click 'Confirm' on a pending booking to mark it as confirmed; the status updates in the UI immediately.",
+        "An admin can click 'Reject' on a pending booking to mark it as rejected; the status updates in the UI immediately.",
+        "The backend stores and returns the booking status correctly.",
+        "Already-confirmed or already-rejected bookings show disabled or appropriately changed action buttons."
       ]
     }
   ],
   "constraints": [
-    "Do not change the existing booking form fields or UPI payment screenshot upload functionality",
-    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts or frontend/src/main.tsx",
-    "Preserve all existing restaurant branding, color palette, and design"
+    "Do not modify files listed in frontend.immutablePaths.",
+    "All backend logic must remain in the single actor in backend/main.mo.",
+    "Generate migration.mo if stable data structures in backend/main.mo are changed to preserve existing bookings."
   ],
   "nonGoals": [
-    "Redesigning any pages or UI components",
-    "Adding new features to the booking system",
-    "Changing the admin dashboard functionality"
+    "Sending email or SMS notifications to customers when a booking is confirmed or rejected.",
+    "Any changes to the public-facing pages other than the booking form error/success feedback.",
+    "Redesigning the admin dashboard UI beyond adding status badges and action buttons."
   ],
   "imageRequirements": {
     "required": [],

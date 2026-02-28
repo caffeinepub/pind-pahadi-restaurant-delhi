@@ -1,14 +1,152 @@
 import { useState } from 'react';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useGetAllBookings } from '../hooks/useQueries';
+import { useGetAllBookings, useConfirmBooking, useRejectBooking } from '../hooks/useQueries';
 import { useQueryClient } from '@tanstack/react-query';
-import { Lock, LogOut, Users, Calendar, Clock, Phone, FileText, CreditCard, Trash2, RefreshCw, Eye } from 'lucide-react';
+import {
+  Lock, LogOut, Users, Calendar, Clock, Phone, FileText,
+  CreditCard, Trash2, RefreshCw, Eye, CheckCircle, XCircle, Loader2
+} from 'lucide-react';
 import { useActor } from '../hooks/useActor';
 import type { Booking } from '../backend';
+import { BookingStatus } from '../backend';
 
 const ADMIN_PASSWORD = 'pindpahadi2024';
 
 type Step = 'password' | 'identity' | 'dashboard';
+
+function StatusBadge({ status }: { status: BookingStatus }) {
+  if (status === BookingStatus.confirmed) {
+    return (
+      <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 border border-green-200 px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap">
+        <CheckCircle className="w-3 h-3" />
+        Confirmed
+      </span>
+    );
+  }
+  if (status === BookingStatus.rejected) {
+    return (
+      <span className="inline-flex items-center gap-1 bg-red-100 text-red-700 border border-red-200 px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap">
+        <XCircle className="w-3 h-3" />
+        Rejected
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap">
+      <Clock className="w-3 h-3" />
+      Pending
+    </span>
+  );
+}
+
+function BookingRow({
+  booking,
+  index,
+  onConfirm,
+  onReject,
+  confirmingId,
+  rejectingId,
+}: {
+  booking: Booking;
+  index: number;
+  onConfirm: (index: number) => void;
+  onReject: (index: number) => void;
+  confirmingId: number | null;
+  rejectingId: number | null;
+}) {
+  const isPending = booking.status === BookingStatus.pending;
+  const isConfirming = confirmingId === index;
+  const isRejecting = rejectingId === index;
+  const isActing = isConfirming || isRejecting;
+
+  return (
+    <tr
+      className={`border-b border-cream-100 hover:bg-cream-50 transition-colors ${
+        index % 2 === 0 ? 'bg-white' : 'bg-cream-50/50'
+      }`}
+    >
+      <td className="px-4 py-3 text-brown-400 font-mono text-xs">{index + 1}</td>
+      <td className="px-4 py-3 font-semibold text-brown-800 whitespace-nowrap">
+        {booking.name || '—'}
+      </td>
+      <td className="px-4 py-3 text-brown-600 whitespace-nowrap">
+        {booking.phone ? (
+          <a href={`tel:${booking.phone}`} className="hover:text-brown-800 underline underline-offset-2">
+            {booking.phone}
+          </a>
+        ) : '—'}
+      </td>
+      <td className="px-4 py-3 text-brown-600 whitespace-nowrap">
+        {booking.date || '—'}
+      </td>
+      <td className="px-4 py-3 text-brown-600 whitespace-nowrap">
+        {booking.time || '—'}
+      </td>
+      <td className="px-4 py-3 text-center">
+        <span className="bg-mustard-100 text-mustard-700 px-2 py-0.5 rounded-full text-xs font-semibold">
+          {booking.guests.toString()}
+        </span>
+      </td>
+      <td className="px-4 py-3 font-semibold text-green-700 whitespace-nowrap">
+        ₹{booking.deposit.toString()}
+      </td>
+      <td className="px-4 py-3 text-brown-500 max-w-[140px]">
+        <span className="block truncate" title={booking.specialRequest || ''}>
+          {booking.specialRequest || <span className="text-brown-300 italic">None</span>}
+        </span>
+      </td>
+      <td className="px-4 py-3">
+        {booking.screenshotFileName ? (
+          <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full text-xs font-medium">
+            <Eye className="w-3 h-3" />
+            {booking.screenshotFileName}
+          </span>
+        ) : (
+          <span className="text-brown-300 italic text-xs">No file</span>
+        )}
+      </td>
+      <td className="px-4 py-3">
+        <StatusBadge status={booking.status} />
+      </td>
+      <td className="px-4 py-3">
+        <div className="flex items-center gap-1.5">
+          {isPending ? (
+            <>
+              <button
+                onClick={() => onConfirm(index)}
+                disabled={isActing}
+                title="Confirm booking"
+                className="flex items-center gap-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors"
+              >
+                {isConfirming ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <CheckCircle className="w-3 h-3" />
+                )}
+                {isConfirming ? '…' : 'Confirm'}
+              </button>
+              <button
+                onClick={() => onReject(index)}
+                disabled={isActing}
+                title="Reject booking"
+                className="flex items-center gap-1 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors"
+              >
+                {isRejecting ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <XCircle className="w-3 h-3" />
+                )}
+                {isRejecting ? '…' : 'Reject'}
+              </button>
+            </>
+          ) : (
+            <span className="text-brown-300 text-xs italic">—</span>
+          )}
+        </div>
+      </td>
+    </tr>
+  );
+}
 
 export default function Admin() {
   const [step, setStep] = useState<Step>('password');
@@ -16,6 +154,8 @@ export default function Admin() {
   const [passwordError, setPasswordError] = useState('');
   const [clearConfirm, setClearConfirm] = useState(false);
   const [clearing, setClearing] = useState(false);
+  const [confirmingId, setConfirmingId] = useState<number | null>(null);
+  const [rejectingId, setRejectingId] = useState<number | null>(null);
 
   const { login, clear, loginStatus, identity } = useInternetIdentity();
   const queryClient = useQueryClient();
@@ -27,6 +167,9 @@ export default function Admin() {
   const { data: bookings = [], isLoading: bookingsLoading, refetch } = useGetAllBookings(
     step === 'dashboard' && isAuthenticated
   );
+
+  const { mutateAsync: confirmBooking } = useConfirmBooking();
+  const { mutateAsync: rejectBooking } = useRejectBooking();
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +202,7 @@ export default function Admin() {
     setClearing(true);
     try {
       await actor.clearAllBookings();
-      queryClient.invalidateQueries({ queryKey: ['allBookings'] });
+      queryClient.invalidateQueries({ queryKey: ['bookings'] });
       setClearConfirm(false);
     } catch (err) {
       console.error('Clear error:', err);
@@ -68,12 +211,31 @@ export default function Admin() {
     }
   };
 
-  const formatDeposit = (deposit: bigint | number) => {
-    return `₹${deposit.toString()}`;
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ['bookings'] });
+    refetch();
   };
 
-  const formatGuests = (guests: bigint | number) => {
-    return guests.toString();
+  const handleConfirm = async (index: number) => {
+    setConfirmingId(index);
+    try {
+      await confirmBooking(index);
+    } catch (err) {
+      console.error('Confirm error:', err);
+    } finally {
+      setConfirmingId(null);
+    }
+  };
+
+  const handleReject = async (index: number) => {
+    setRejectingId(index);
+    try {
+      await rejectBooking(index);
+    } catch (err) {
+      console.error('Reject error:', err);
+    } finally {
+      setRejectingId(null);
+    }
   };
 
   // ── Password Gate ──────────────────────────────────────────────────────────
@@ -160,6 +322,8 @@ export default function Admin() {
   // ── Dashboard ──────────────────────────────────────────────────────────────
   const totalGuests = bookings.reduce((sum, b) => sum + Number(b.guests), 0);
   const totalDeposits = bookings.reduce((sum, b) => sum + Number(b.deposit), 0);
+  const todayStr = new Date().toISOString().split('T')[0];
+  const todayCount = bookings.filter(b => b.date === todayStr).length;
 
   return (
     <div className="min-h-screen bg-cream-50">
@@ -185,7 +349,7 @@ export default function Admin() {
             { label: 'Total Bookings', value: bookings.length, icon: Calendar, color: 'text-brown-700' },
             { label: 'Total Guests', value: totalGuests, icon: Users, color: 'text-mustard-600' },
             { label: 'Total Deposits', value: `₹${totalDeposits}`, icon: CreditCard, color: 'text-green-600' },
-            { label: 'Today', value: bookings.filter(b => b.date === new Date().toISOString().split('T')[0]).length, icon: Clock, color: 'text-red-600' },
+            { label: 'Today', value: todayCount, icon: Clock, color: 'text-red-600' },
           ].map((stat) => (
             <div key={stat.label} className="bg-white rounded-xl shadow-card p-4 flex items-center gap-3">
               <stat.icon className={`w-8 h-8 ${stat.color} flex-shrink-0`} />
@@ -202,10 +366,11 @@ export default function Admin() {
           <h2 className="font-display text-xl font-bold text-brown-800">All Reservations</h2>
           <div className="flex gap-2">
             <button
-              onClick={() => refetch()}
-              className="flex items-center gap-1.5 bg-white border border-cream-300 hover:bg-cream-50 text-brown-700 px-3 py-1.5 rounded-lg text-sm transition-colors"
+              onClick={handleRefresh}
+              disabled={bookingsLoading}
+              className="flex items-center gap-1.5 bg-white border border-cream-300 hover:bg-cream-50 text-brown-700 px-3 py-1.5 rounded-lg text-sm transition-colors disabled:opacity-60"
             >
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className={`w-4 h-4 ${bookingsLoading ? 'animate-spin' : ''}`} />
               Refresh
             </button>
             {!clearConfirm ? (
@@ -277,63 +442,41 @@ export default function Admin() {
                     <th className="px-4 py-3 text-left font-semibold">
                       <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> Screenshot</span>
                     </th>
+                    <th className="px-4 py-3 text-left font-semibold">Status</th>
+                    <th className="px-4 py-3 text-left font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {bookings.map((booking: Booking, index: number) => (
-                    <tr
+                    <BookingRow
                       key={index}
-                      className={`border-b border-cream-100 hover:bg-cream-50 transition-colors ${
-                        index % 2 === 0 ? 'bg-white' : 'bg-cream-50/50'
-                      }`}
-                    >
-                      <td className="px-4 py-3 text-brown-400 font-mono text-xs">{index + 1}</td>
-                      <td className="px-4 py-3 font-semibold text-brown-800 whitespace-nowrap">
-                        {booking.name || '—'}
-                      </td>
-                      <td className="px-4 py-3 text-brown-600 whitespace-nowrap">
-                        {booking.phone ? (
-                          <a href={`tel:${booking.phone}`} className="hover:text-brown-800 underline underline-offset-2">
-                            {booking.phone}
-                          </a>
-                        ) : '—'}
-                      </td>
-                      <td className="px-4 py-3 text-brown-600 whitespace-nowrap">
-                        {booking.date || '—'}
-                      </td>
-                      <td className="px-4 py-3 text-brown-600 whitespace-nowrap">
-                        {booking.time || '—'}
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <span className="bg-mustard-100 text-mustard-700 px-2 py-0.5 rounded-full text-xs font-semibold">
-                          {formatGuests(booking.guests)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 font-semibold text-green-700 whitespace-nowrap">
-                        {formatDeposit(booking.deposit)}
-                      </td>
-                      <td className="px-4 py-3 text-brown-500 max-w-[180px]">
-                        <span className="block truncate" title={booking.specialRequest || ''}>
-                          {booking.specialRequest || <span className="text-brown-300 italic">None</span>}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        {booking.screenshotFileName ? (
-                          <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full text-xs font-medium">
-                            <Eye className="w-3 h-3" />
-                            {booking.screenshotFileName}
-                          </span>
-                        ) : (
-                          <span className="text-brown-300 italic text-xs">No file</span>
-                        )}
-                      </td>
-                    </tr>
+                      booking={booking}
+                      index={index}
+                      onConfirm={handleConfirm}
+                      onReject={handleReject}
+                      confirmingId={confirmingId}
+                      rejectingId={rejectingId}
+                    />
                   ))}
                 </tbody>
               </table>
             </div>
-            <div className="px-4 py-3 bg-cream-50 border-t border-cream-200 text-xs text-brown-400">
-              Showing {bookings.length} reservation{bookings.length !== 1 ? 's' : ''}
+            <div className="px-4 py-3 bg-cream-50 border-t border-cream-200 text-xs text-brown-400 flex items-center justify-between">
+              <span>Showing {bookings.length} reservation{bookings.length !== 1 ? 's' : ''}</span>
+              <span className="flex items-center gap-3">
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
+                  Pending: {bookings.filter(b => b.status === BookingStatus.pending).length}
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+                  Confirmed: {bookings.filter(b => b.status === BookingStatus.confirmed).length}
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-red-400 inline-block" />
+                  Rejected: {bookings.filter(b => b.status === BookingStatus.rejected).length}
+                </span>
+              </span>
             </div>
           </div>
         )}

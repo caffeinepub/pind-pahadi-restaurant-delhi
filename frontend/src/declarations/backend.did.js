@@ -13,7 +13,13 @@ export const UserRole = IDL.Variant({
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
+export const BookingStatus = IDL.Variant({
+  'pending' : IDL.Null,
+  'rejected' : IDL.Null,
+  'confirmed' : IDL.Null,
+});
 export const Booking = IDL.Record({
+  'status' : BookingStatus,
   'screenshotFileName' : IDL.Opt(IDL.Text),
   'date' : IDL.Text,
   'name' : IDL.Text,
@@ -29,7 +35,14 @@ export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'clearAllBookings' : IDL.Func([], [], []),
+  'confirmBooking' : IDL.Func([IDL.Nat], [], []),
+  'deleteBooking' : IDL.Func([IDL.Nat], [], []),
   'getAllBookings' : IDL.Func([], [IDL.Vec(Booking)], ['query']),
+  'getBookingsByStatus' : IDL.Func(
+      [BookingStatus],
+      [IDL.Vec(Booking)],
+      ['query'],
+    ),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getUserProfile' : IDL.Func(
@@ -38,8 +51,22 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'rejectBooking' : IDL.Func([IDL.Nat], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'submitBooking' : IDL.Func(
+      [
+        IDL.Text,
+        IDL.Text,
+        IDL.Nat,
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        IDL.Opt(IDL.Text),
+      ],
+      [IDL.Bool],
+      [],
+    ),
+  'submitBookingInternal' : IDL.Func(
       [
         IDL.Text,
         IDL.Text,
@@ -62,7 +89,13 @@ export const idlFactory = ({ IDL }) => {
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
+  const BookingStatus = IDL.Variant({
+    'pending' : IDL.Null,
+    'rejected' : IDL.Null,
+    'confirmed' : IDL.Null,
+  });
   const Booking = IDL.Record({
+    'status' : BookingStatus,
     'screenshotFileName' : IDL.Opt(IDL.Text),
     'date' : IDL.Text,
     'name' : IDL.Text,
@@ -78,7 +111,14 @@ export const idlFactory = ({ IDL }) => {
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'clearAllBookings' : IDL.Func([], [], []),
+    'confirmBooking' : IDL.Func([IDL.Nat], [], []),
+    'deleteBooking' : IDL.Func([IDL.Nat], [], []),
     'getAllBookings' : IDL.Func([], [IDL.Vec(Booking)], ['query']),
+    'getBookingsByStatus' : IDL.Func(
+        [BookingStatus],
+        [IDL.Vec(Booking)],
+        ['query'],
+      ),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getUserProfile' : IDL.Func(
@@ -87,8 +127,22 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'rejectBooking' : IDL.Func([IDL.Nat], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'submitBooking' : IDL.Func(
+        [
+          IDL.Text,
+          IDL.Text,
+          IDL.Nat,
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          IDL.Opt(IDL.Text),
+        ],
+        [IDL.Bool],
+        [],
+      ),
+    'submitBookingInternal' : IDL.Func(
         [
           IDL.Text,
           IDL.Text,
