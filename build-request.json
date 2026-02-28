@@ -1,74 +1,59 @@
 {
   "kind": "build_request",
-  "title": "Fix admin dashboard bookings visibility, restore payment details, and add screenshot option",
-  "projectName": "Pind Pahadi Admin",
+  "title": "Send booking confirmation details with screenshot to WhatsApp on confirm",
+  "projectName": "Pind Pahadi Booking",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the admin dashboard so that table bookings submitted by users appear correctly. Ensure that after a user submits a booking via the Contact/booking page, it is retrievable and displayed in the Admin dashboard booking list without requiring a manual refresh or re-login.",
-      "target": "both",
+      "text": "On the booking confirmation screen (after a reservation is successfully submitted), add a 'Send to WhatsApp' button that: (1) captures a screenshot of the BookingConfirmation card using html2canvas or equivalent, (2) encodes it as an image, and (3) opens a WhatsApp share link (wa.me) pre-filled with a text message containing the booking reference, guest name, date/time, party size, and payment details, plus instructions to attach the screenshot image. Since WhatsApp Web does not support direct image-passing via URL, the flow should: save/download the screenshot automatically, then open a WhatsApp chat with the pre-filled text so the user can manually attach the saved image.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-5"
+          "msg-latest"
         ],
         "quotes": [
-          "not coming at admin dasboard"
+          "when confirm book then that detail with screenshot send to whatsapp"
         ]
       },
       "acceptanceCriteria": [
-        "After a user submits a table booking, it appears in the admin dashboard booking list",
-        "Admin can see all submitted bookings including name, date, time, party size, and contact info",
-        "Bookings persist and are visible after admin logs out and back in"
+        "A 'Send to WhatsApp' button is visible on the BookingConfirmation component after a booking is submitted successfully.",
+        "Clicking the button triggers a screenshot capture of the confirmation card and automatically downloads it as a PNG file.",
+        "A WhatsApp chat window opens with a pre-filled message containing: booking reference, guest name, date, time, party size, and payment details.",
+        "The pre-filled WhatsApp message includes a note prompting the user to attach the downloaded screenshot.",
+        "The WhatsApp number used matches the restaurant's existing contact number already used in WhatsAppButton.tsx."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Restore the payment details section in the booking form on the Contact page. The section should allow users to enter or view payment-related information (e.g., advance payment amount, payment method, UPI/bank details for the restaurant) as part of the table booking flow.",
+      "text": "Fix the admin dashboard so that newly submitted bookings reliably appear in the bookings list. Ensure the React Query hook that fetches all bookings (in useQueries.ts) is properly invalidated or refetched after any booking submission, confirmation, rejection, or deletion, and that the Admin page correctly calls this query and renders the results.",
       "target": "both",
       "source": {
         "messageIds": [
-          "msg-5"
+          "msg-latest"
         ],
         "quotes": [
-          "why you remove payment details"
+          "you are not able to connect the dashboard"
         ]
       },
       "acceptanceCriteria": [
-        "Payment details section is visible in the booking form or booking confirmation flow",
-        "Payment details submitted by the user are stored with the booking record",
-        "Admin dashboard displays the payment details alongside each booking entry"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Add a screenshot/capture option in the booking confirmation flow. After a user successfully submits a booking, provide a button that allows them to take or download a screenshot of their booking confirmation details (booking ID, name, date, time, party size, payment info) as an image or printable view.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-5"
-        ],
-        "quotes": [
-          "screenshot option add it"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A 'Save / Screenshot' button is displayed on the booking confirmation screen after successful submission",
-        "Clicking the button captures or downloads a formatted confirmation card showing booking details",
-        "The confirmation card includes booking ID, guest name, date, time, party size, and payment details",
-        "The feature works without any third-party external service"
+        "After a user submits a booking via the Contact page, it appears in the Admin dashboard bookings list without requiring a manual page reload.",
+        "After an admin confirms, rejects, or deletes a booking, the list updates to reflect the change immediately.",
+        "The Admin page displays all bookings stored in the backend with correct status labels (pending/confirmed/rejected).",
+        "No stale or empty booking list is shown when valid bookings exist in the backend."
       ]
     }
   ],
   "constraints": [
-    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
-    "Keep all Motoko backend logic within the single actor in backend/main.mo",
-    "Preserve existing admin authentication flow (Internet Identity + hardcoded password)"
+    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui.",
+    "WhatsApp integration must use the wa.me URL scheme only — no third-party messaging APIs.",
+    "Screenshot capture must be client-side only — do not route image data through the backend."
   ],
   "nonGoals": [
-    "Redesigning the overall visual theme or layout of the app",
-    "Adding new payment gateway integrations (e.g., Stripe, Razorpay)",
-    "Changing the admin authentication mechanism"
+    "Sending emails or SMS notifications.",
+    "Storing screenshot images in the backend or on-chain.",
+    "Implementing real-time WebSocket updates for the admin dashboard.",
+    "Changing the existing booking data schema or migration logic."
   ],
   "imageRequirements": {
     "required": [],

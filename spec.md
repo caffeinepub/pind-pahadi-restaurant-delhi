@@ -1,12 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Fix admin dashboard bookings visibility, restore payment details in the booking form, and add a screenshot/download option on the booking confirmation screen.
+**Goal:** Add a "Send to WhatsApp" button on the booking confirmation screen and fix the admin dashboard so bookings reliably appear after submission.
 
 **Planned changes:**
-- Fix the booking submission flow so that new table bookings submitted by users appear immediately and persistently in the admin dashboard booking list
-- Restore the payment details section in the booking form (advance payment amount, payment method, UPI/bank details), storing payment info with each booking record
-- Display payment details alongside each booking entry in the admin dashboard
-- Add a "Save / Screenshot" button on the booking confirmation screen that captures and downloads a formatted confirmation card (booking ID, guest name, date, time, party size, payment details) as an image, using no external services
+- Add a "Send to WhatsApp" button to the BookingConfirmation component that captures a screenshot of the confirmation card using html2canvas, auto-downloads it as a PNG, and opens a WhatsApp chat (via wa.me) pre-filled with booking reference, guest name, date/time, party size, payment details, and a prompt to attach the downloaded screenshot.
+- Fix the React Query hook in useQueries.ts to properly invalidate/refetch the bookings list after any booking submission, confirmation, rejection, or deletion.
+- Ensure the Admin page correctly calls the bookings query and renders up-to-date results without requiring a manual page reload.
 
-**User-visible outcome:** Users can complete a booking with payment details and immediately download a confirmation card. Admins can log in and see all submitted bookings including payment information without any manual refresh.
+**User-visible outcome:** After confirming a booking, users can tap "Send to WhatsApp" to download their confirmation screenshot and share booking details via WhatsApp. Admins will see newly submitted and updated bookings reflected in the dashboard immediately.

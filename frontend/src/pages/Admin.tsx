@@ -1,379 +1,390 @@
 import React, { useState } from 'react';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useGetAllBookings, useConfirmBooking, useRejectBooking, useDeleteBooking } from '../hooks/useQueries';
-import { useQueryClient } from '@tanstack/react-query';
-import { useActor } from '../hooks/useActor';
-import { BookingStatus, Booking } from '../backend';
+import { BookingStatus } from '../backend';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Shield, RefreshCw, CheckCircle, XCircle, Trash2,
-  Users, Calendar, Clock, Phone, MessageSquare, LogIn, Loader2,
-  CreditCard, Building2, ChevronDown, ChevronUp, Image
-} from 'lucide-react';
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { CheckCircle, XCircle, Trash2, ChevronDown, ChevronUp, RefreshCw, LogOut, Lock, Eye, EyeOff } from 'lucide-react';
 
 const ADMIN_PASSWORD = 'pindpahadi2024';
 
 export default function Admin() {
-  const { identity, login, loginStatus } = useInternetIdentity();
-  const isAuthenticated = !!identity;
-  const isLoggingIn = loginStatus === 'logging-in';
-  const { actor, isFetching: actorFetching } = useActor();
-
-  const [step, setStep] = useState<'password' | 'dashboard'>('password');
+  const { identity, login, clear, loginStatus } = useInternetIdentity();
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [expandedRow, setExpandedRow] = useState<number | null>(null);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'confirmed' | 'rejected'>('all');
 
-  const queryClient = useQueryClient();
+  const { data: bookings = [], isLoading, isError, refetch, isFetching } = useGetAllBookings();
+  const confirmMutation = useConfirmBooking();
+  const rejectMutation = useRejectBooking();
+  const deleteMutation = useDeleteBooking();
 
-  const {
-    data: bookings,
-    isLoading: bookingsLoading,
-    isError: bookingsError,
-    error: bookingsErrorObj,
-    refetch: refetchBookings,
-  } = useGetAllBookings();
-
-  const confirmBooking = useConfirmBooking();
-  const rejectBooking = useRejectBooking();
-  const deleteBooking = useDeleteBooking();
+  const handleLogin = async () => {
+    try {
+      await login();
+    } catch (e) {
+      console.error('Login error', e);
+    }
+  };
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === ADMIN_PASSWORD) {
-      setStep('dashboard');
+      setIsAuthenticated(true);
       setPasswordError('');
     } else {
       setPasswordError('Incorrect password. Please try again.');
     }
   };
 
-  const handleRefresh = () => {
-    queryClient.invalidateQueries({ queryKey: ['allBookings'] });
-    refetchBookings();
+  const handleLogout = async () => {
+    await clear();
+    setIsAuthenticated(false);
+    setPassword('');
   };
 
-  const toggleRow = (idx: number) => {
-    setExpandedRows(prev => {
-      const next = new Set(prev);
-      if (next.has(idx)) next.delete(idx);
-      else next.add(idx);
-      return next;
-    });
-  };
+  // Not logged in with Internet Identity
+  if (!identity) {
+    return (
+      <div className="min-h-screen bg-cream flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-card border border-mustard/30 max-w-sm w-full p-8 text-center">
+          <div className="w-16 h-16 bg-brown/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-8 h-8 text-brown" />
+          </div>
+          <h1 className="text-2xl font-bold text-brown font-poppins mb-2">Admin Access</h1>
+          <p className="text-brown/60 text-sm mb-6">Sign in with Internet Identity to access the dashboard</p>
+          <Button
+            onClick={handleLogin}
+            disabled={loginStatus === 'logging-in'}
+            className="w-full bg-brown hover:bg-brown/90 text-white font-semibold py-3 rounded-xl"
+          >
+            {loginStatus === 'logging-in' ? 'Signing in…' : 'Sign In with Internet Identity'}
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
-  const getStatusBadge = (status: BookingStatus) => {
-    switch (status) {
-      case BookingStatus.confirmed:
-        return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700"><CheckCircle className="w-3 h-3" />Confirmed</span>;
-      case BookingStatus.rejected:
-        return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700"><XCircle className="w-3 h-3" />Rejected</span>;
-      default:
-        return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700"><Clock className="w-3 h-3" />Pending</span>;
-    }
-  };
-
-  // Step 1: Login gate
+  // Logged in but password not verified
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-brand-cream-light flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl shadow-card p-10 max-w-sm w-full text-center">
-          <Shield className="w-14 h-14 text-brand-brown mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-brand-brown font-poppins mb-2">Admin Access</h1>
-          <p className="text-brand-brown/60 text-sm mb-6">Log in with your identity to access the dashboard</p>
+      <div className="min-h-screen bg-cream flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-card border border-mustard/30 max-w-sm w-full p-8">
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 bg-brown/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Lock className="w-8 h-8 text-brown" />
+            </div>
+            <h1 className="text-2xl font-bold text-brown font-poppins">Admin Password</h1>
+            <p className="text-brown/60 text-sm mt-1">Enter the admin password to continue</p>
+          </div>
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="Enter admin password"
+                className="w-full border border-mustard/40 rounded-xl px-4 py-3 text-brown focus:outline-none focus:ring-2 focus:ring-mustard/50 pr-12"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(v => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-brown/40 hover:text-brown"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+            {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
+            <Button type="submit" className="w-full bg-brown hover:bg-brown/90 text-white font-semibold py-3 rounded-xl">
+              Access Dashboard
+            </Button>
+          </form>
           <button
-            onClick={login}
-            disabled={isLoggingIn}
-            className="w-full flex items-center justify-center gap-2 bg-brand-brown text-white px-6 py-3 rounded-full font-semibold hover:bg-brand-brown/90 transition-colors disabled:opacity-60"
+            onClick={handleLogout}
+            className="mt-4 w-full text-center text-sm text-brown/50 hover:text-brown"
           >
-            <LogIn className="w-4 h-4" />
-            {isLoggingIn ? 'Logging in…' : 'Log In'}
+            Sign out
           </button>
         </div>
       </div>
     );
   }
 
-  // Step 2: Password gate
-  if (step === 'password') {
-    return (
-      <div className="min-h-screen bg-brand-cream-light flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl shadow-card p-10 max-w-sm w-full">
-          <Shield className="w-14 h-14 text-brand-brown mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-brand-brown font-poppins mb-2 text-center">Admin Password</h1>
-          <p className="text-brand-brown/60 text-sm mb-6 text-center">Enter the admin password to continue</p>
-          <form onSubmit={handlePasswordSubmit} className="space-y-4">
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              placeholder="Enter password"
-              className="w-full border border-brand-brown/20 rounded-xl px-4 py-3 text-brand-brown focus:outline-none focus:ring-2 focus:ring-brand-brown/30"
-            />
-            {passwordError && (
-              <p className="text-red-600 text-sm">{passwordError}</p>
-            )}
-            <button
-              type="submit"
-              className="w-full bg-brand-brown text-white py-3 rounded-full font-bold hover:bg-brand-brown/90 transition-colors"
-            >
-              Access Dashboard
-            </button>
-          </form>
-        </div>
-      </div>
-    );
-  }
+  const filteredBookings = bookings.filter(b => {
+    if (statusFilter === 'all') return true;
+    if (statusFilter === 'pending') return b.status === BookingStatus.pending;
+    if (statusFilter === 'confirmed') return b.status === BookingStatus.confirmed;
+    if (statusFilter === 'rejected') return b.status === BookingStatus.rejected;
+    return true;
+  });
 
-  // Step 3: Dashboard
-  const allBookings = bookings ?? [];
-  const pendingCount = allBookings.filter(b => b.status === BookingStatus.pending).length;
-  const confirmedCount = allBookings.filter(b => b.status === BookingStatus.confirmed).length;
-  const rejectedCount = allBookings.filter(b => b.status === BookingStatus.rejected).length;
+  const stats = {
+    total: bookings.length,
+    pending: bookings.filter(b => b.status === BookingStatus.pending).length,
+    confirmed: bookings.filter(b => b.status === BookingStatus.confirmed).length,
+    rejected: bookings.filter(b => b.status === BookingStatus.rejected).length,
+  };
 
-  const isActorReady = !!actor && !actorFetching;
+  const getStatusBadge = (status: BookingStatus) => {
+    switch (status) {
+      case BookingStatus.confirmed:
+        return <Badge className="bg-green-100 text-green-800 border-green-200">Confirmed</Badge>;
+      case BookingStatus.rejected:
+        return <Badge className="bg-red-100 text-red-800 border-red-200">Rejected</Badge>;
+      default:
+        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Pending</Badge>;
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-brand-cream-light">
-      {/* Header */}
-      <div className="bg-brand-brown text-white px-6 py-5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Shield className="w-7 h-7" />
-          <div>
-            <h1 className="text-xl font-bold font-poppins">Pind Pahadi Admin</h1>
-            <p className="text-brand-cream/70 text-xs">Reservations Dashboard</p>
-          </div>
+    <div className="min-h-screen bg-cream">
+      {/* Top Bar */}
+      <div className="bg-brown text-white px-6 py-4 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold font-poppins">🍽️ Pind Pahadi – Admin</h1>
+          <p className="text-white/60 text-xs mt-0.5">Booking Management Dashboard</p>
         </div>
         <button
-          onClick={handleRefresh}
-          disabled={bookingsLoading || actorFetching}
-          className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors disabled:opacity-50"
+          onClick={handleLogout}
+          className="flex items-center gap-2 text-white/70 hover:text-white text-sm transition-colors"
         >
-          <RefreshCw className={`w-4 h-4 ${bookingsLoading ? 'animate-spin' : ''}`} />
-          Refresh
+          <LogOut className="w-4 h-4" />
+          Logout
         </button>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: 'Total', value: allBookings.length, color: 'text-brand-brown', bg: 'bg-white' },
-            { label: 'Pending', value: pendingCount, color: 'text-yellow-700', bg: 'bg-yellow-50' },
-            { label: 'Confirmed', value: confirmedCount, color: 'text-green-700', bg: 'bg-green-50' },
-            { label: 'Rejected', value: rejectedCount, color: 'text-red-700', bg: 'bg-red-50' },
+            { label: 'Total Bookings', value: stats.total, color: 'text-brown' },
+            { label: 'Pending', value: stats.pending, color: 'text-yellow-700' },
+            { label: 'Confirmed', value: stats.confirmed, color: 'text-green-700' },
+            { label: 'Rejected', value: stats.rejected, color: 'text-red-700' },
           ].map(stat => (
-            <div key={stat.label} className={`${stat.bg} rounded-2xl shadow-card p-5 text-center`}>
-              <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
-              <p className="text-brand-brown/60 text-sm mt-1">{stat.label}</p>
+            <div key={stat.label} className="bg-white rounded-xl border border-mustard/20 p-4 shadow-sm">
+              <p className="text-brown/60 text-xs font-medium uppercase tracking-wide">{stat.label}</p>
+              <p className={`text-3xl font-bold mt-1 ${stat.color}`}>{stat.value}</p>
             </div>
           ))}
         </div>
 
-        {/* Actor not ready warning */}
-        {!isActorReady && (
-          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl flex items-center gap-3 text-yellow-800 text-sm">
-            <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-            <span>Connecting to backend… Please wait before refreshing.</span>
-          </div>
-        )}
-
-        {/* Error state */}
-        {bookingsError && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
-            <p className="font-semibold mb-1">Failed to load bookings</p>
-            <p className="text-xs opacity-80">{bookingsErrorObj instanceof Error ? bookingsErrorObj.message : 'Unknown error'}</p>
-            <button
-              onClick={handleRefresh}
-              className="mt-2 text-red-700 underline text-xs hover:no-underline"
-            >
-              Try again
-            </button>
-          </div>
-        )}
-
-        {/* Bookings Table */}
-        <div className="bg-white rounded-2xl shadow-card overflow-hidden">
-          <div className="px-6 py-4 border-b border-brand-brown/10 flex items-center justify-between">
-            <h2 className="text-lg font-bold text-brand-brown font-poppins">All Reservations</h2>
-            {bookingsLoading && (
-              <div className="flex items-center gap-2 text-brand-brown/50 text-sm">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Loading…
-              </div>
-            )}
-          </div>
-
-          {bookingsLoading && allBookings.length === 0 ? (
-            <div className="p-12 text-center">
-              <Loader2 className="w-8 h-8 animate-spin text-brand-brown/40 mx-auto mb-3" />
-              <p className="text-brand-brown/50">Loading reservations…</p>
-            </div>
-          ) : !bookingsLoading && !bookingsError && allBookings.length === 0 ? (
-            <div className="p-12 text-center">
-              <Calendar className="w-12 h-12 text-brand-brown/20 mx-auto mb-3" />
-              <p className="text-brand-brown/50 font-medium">No reservations yet</p>
-              <p className="text-brand-brown/30 text-sm mt-1">Bookings will appear here once customers submit them</p>
+        {/* Filters + Refresh */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex gap-2 flex-wrap">
+            {(['all', 'pending', 'confirmed', 'rejected'] as const).map(f => (
               <button
-                onClick={handleRefresh}
-                className="mt-4 text-brand-brown/50 underline text-sm hover:text-brand-brown transition-colors"
+                key={f}
+                onClick={() => setStatusFilter(f)}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors capitalize ${
+                  statusFilter === f
+                    ? 'bg-brown text-white'
+                    : 'bg-white border border-mustard/30 text-brown hover:bg-mustard/10'
+                }`}
               >
-                Refresh to check for new bookings
+                {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
               </button>
+            ))}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="border-mustard/40 text-brown hover:bg-mustard/10 flex items-center gap-2"
+          >
+            <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
+
+        {/* Table */}
+        <div className="bg-white rounded-xl border border-mustard/20 shadow-sm overflow-hidden">
+          {isLoading ? (
+            <div className="p-6 space-y-3">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-12 w-full rounded-lg" />
+              ))}
+            </div>
+          ) : isError ? (
+            <div className="p-12 text-center">
+              <p className="text-red-500 font-medium">Failed to load bookings.</p>
+              <p className="text-brown/50 text-sm mt-1">You may not have admin permissions, or there was a network error.</p>
+              <Button onClick={() => refetch()} variant="outline" className="mt-4 border-mustard/40 text-brown">
+                Try Again
+              </Button>
+            </div>
+          ) : filteredBookings.length === 0 ? (
+            <div className="p-12 text-center">
+              <p className="text-brown/50 text-lg">No bookings found</p>
+              <p className="text-brown/30 text-sm mt-1">
+                {statusFilter !== 'all' ? `No ${statusFilter} bookings yet.` : 'No bookings have been submitted yet.'}
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-brand-cream/50">
-                  <tr>
-                    <th className="text-left px-4 py-3 text-brand-brown/70 font-semibold w-8">#</th>
-                    <th className="text-left px-4 py-3 text-brand-brown/70 font-semibold">Name</th>
-                    <th className="text-left px-4 py-3 text-brand-brown/70 font-semibold">
-                      <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" />Phone</span>
-                    </th>
-                    <th className="text-left px-4 py-3 text-brand-brown/70 font-semibold">
-                      <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" />Guests</span>
-                    </th>
-                    <th className="text-left px-4 py-3 text-brand-brown/70 font-semibold">
-                      <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />Date</span>
-                    </th>
-                    <th className="text-left px-4 py-3 text-brand-brown/70 font-semibold">
-                      <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Time</span>
-                    </th>
-                    <th className="text-left px-4 py-3 text-brand-brown/70 font-semibold">Status</th>
-                    <th className="text-left px-4 py-3 text-brand-brown/70 font-semibold">Payment</th>
-                    <th className="text-left px-4 py-3 text-brand-brown/70 font-semibold">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-brand-brown/5">
-                  {allBookings.map((booking: Booking, idx: number) => (
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-mustard/10 hover:bg-mustard/10">
+                    <TableHead className="text-brown font-bold">#</TableHead>
+                    <TableHead className="text-brown font-bold">Name</TableHead>
+                    <TableHead className="text-brown font-bold">Phone</TableHead>
+                    <TableHead className="text-brown font-bold">Date</TableHead>
+                    <TableHead className="text-brown font-bold">Time</TableHead>
+                    <TableHead className="text-brown font-bold">Guests</TableHead>
+                    <TableHead className="text-brown font-bold">Advance</TableHead>
+                    <TableHead className="text-brown font-bold">Status</TableHead>
+                    <TableHead className="text-brown font-bold">Actions</TableHead>
+                    <TableHead className="text-brown font-bold">Details</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredBookings.map((booking, idx) => (
                     <React.Fragment key={idx}>
-                      <tr className="hover:bg-brand-cream/20 transition-colors">
-                        <td className="px-4 py-3 text-brand-brown/40 font-mono text-xs">{idx + 1}</td>
-                        <td className="px-4 py-3 font-semibold text-brand-brown">{booking.name}</td>
-                        <td className="px-4 py-3 text-brand-brown/70">{booking.phone}</td>
-                        <td className="px-4 py-3 text-brand-brown/70">{booking.guests.toString()}</td>
-                        <td className="px-4 py-3 text-brand-brown/70">{booking.date}</td>
-                        <td className="px-4 py-3 text-brand-brown/70">{booking.time}</td>
-                        <td className="px-4 py-3">{getStatusBadge(booking.status)}</td>
-                        <td className="px-4 py-3">
-                          <button
-                            onClick={() => toggleRow(idx)}
-                            className="flex items-center gap-1 text-brand-brown/60 hover:text-brand-brown text-xs font-medium transition-colors"
-                          >
-                            <CreditCard className="w-3.5 h-3.5" />
-                            ₹{booking.paymentDetails.advanceAmount.toString()}
-                            {expandedRows.has(idx) ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                          </button>
-                        </td>
-                        <td className="px-4 py-3">
+                      <TableRow className="hover:bg-mustard/5 transition-colors">
+                        <TableCell className="text-brown/50 text-sm font-mono">{idx + 1}</TableCell>
+                        <TableCell className="font-semibold text-brown">{booking.name}</TableCell>
+                        <TableCell className="text-brown/70 text-sm">{booking.phone}</TableCell>
+                        <TableCell className="text-brown/70 text-sm">{booking.date}</TableCell>
+                        <TableCell className="text-brown/70 text-sm">{booking.time}</TableCell>
+                        <TableCell className="text-brown/70 text-sm">{booking.guests.toString()}</TableCell>
+                        <TableCell className="text-brown font-semibold text-sm">
+                          ₹{booking.paymentDetails.advanceAmount.toString()}
+                        </TableCell>
+                        <TableCell>{getStatusBadge(booking.status)}</TableCell>
+                        <TableCell>
                           <div className="flex items-center gap-1">
-                            {booking.status !== BookingStatus.confirmed && (
-                              <button
-                                onClick={() => confirmBooking.mutate(BigInt(idx))}
-                                disabled={confirmBooking.isPending}
-                                title="Confirm"
-                                className="p-1.5 rounded-lg bg-green-50 hover:bg-green-100 text-green-700 transition-colors disabled:opacity-50"
-                              >
-                                <CheckCircle className="w-4 h-4" />
-                              </button>
+                            {booking.status === BookingStatus.pending && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => confirmMutation.mutate(BigInt(idx))}
+                                  disabled={confirmMutation.isPending}
+                                  className="text-green-600 hover:text-green-700 hover:bg-green-50 p-1.5 h-auto"
+                                  title="Confirm"
+                                >
+                                  <CheckCircle className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => rejectMutation.mutate(BigInt(idx))}
+                                  disabled={rejectMutation.isPending}
+                                  className="text-red-500 hover:text-red-600 hover:bg-red-50 p-1.5 h-auto"
+                                  title="Reject"
+                                >
+                                  <XCircle className="w-4 h-4" />
+                                </Button>
+                              </>
                             )}
-                            {booking.status !== BookingStatus.rejected && (
-                              <button
-                                onClick={() => rejectBooking.mutate(BigInt(idx))}
-                                disabled={rejectBooking.isPending}
-                                title="Reject"
-                                className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 transition-colors disabled:opacity-50"
-                              >
-                                <XCircle className="w-4 h-4" />
-                              </button>
-                            )}
-                            <button
-                              onClick={() => deleteBooking.mutate(BigInt(idx))}
-                              disabled={deleteBooking.isPending}
-                              title="Delete"
-                              className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 transition-colors disabled:opacity-50"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="text-brown/40 hover:text-red-500 hover:bg-red-50 p-1.5 h-auto"
+                                  title="Delete"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Booking?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This will permanently delete the booking for <strong>{booking.name}</strong> on {booking.date}. This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => deleteMutation.mutate(BigInt(idx))}
+                                    className="bg-red-600 hover:bg-red-700"
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
-                        </td>
-                      </tr>
-                      {/* Expanded payment + notes row */}
-                      {expandedRows.has(idx) && (
-                        <tr className="bg-brand-cream/30">
-                          <td colSpan={9} className="px-6 py-4">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                              {/* Payment Details */}
-                              <div className="space-y-2">
-                                <p className="text-xs font-bold text-brand-brown/50 uppercase tracking-wide flex items-center gap-1">
-                                  <CreditCard className="w-3 h-3" /> Payment Details
-                                </p>
-                                <div className="space-y-1">
-                                  <div className="flex justify-between">
-                                    <span className="text-brand-brown/60">Method:</span>
-                                    <span className="font-medium text-brand-brown">{booking.paymentDetails.paymentMethod}</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span className="text-brand-brown/60">Advance:</span>
-                                    <span className="font-bold text-brand-brown">₹{booking.paymentDetails.advanceAmount.toString()}</span>
-                                  </div>
-                                  {booking.paymentDetails.upiDetails && booking.paymentDetails.upiDetails !== 'Not specified' && (
-                                    <div className="flex justify-between gap-2">
-                                      <span className="text-brand-brown/60 shrink-0">UPI/Txn:</span>
-                                      <span className="font-medium text-brand-brown text-right break-all">{booking.paymentDetails.upiDetails}</span>
-                                    </div>
-                                  )}
-                                  {booking.paymentDetails.bankDetails && booking.paymentDetails.bankDetails !== 'Not specified' && (
-                                    <div className="flex justify-between gap-2">
-                                      <span className="text-brand-brown/60 shrink-0">Bank Ref:</span>
-                                      <span className="font-medium text-brand-brown text-right break-all">{booking.paymentDetails.bankDetails}</span>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
+                        </TableCell>
+                        <TableCell>
+                          <button
+                            onClick={() => setExpandedRow(expandedRow === idx ? null : idx)}
+                            className="text-brown/40 hover:text-brown transition-colors"
+                          >
+                            {expandedRow === idx ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          </button>
+                        </TableCell>
+                      </TableRow>
 
-                              {/* Screenshot */}
-                              <div className="space-y-2">
-                                <p className="text-xs font-bold text-brand-brown/50 uppercase tracking-wide flex items-center gap-1">
-                                  <Image className="w-3 h-3" /> Screenshot
-                                </p>
-                                {booking.screenshotFileName ? (
-                                  <div className="flex items-center gap-2 p-2 bg-white rounded-lg border border-brand-brown/10">
-                                    <Image className="w-4 h-4 text-brand-brown/50 shrink-0" />
-                                    <span className="text-brand-brown/70 text-xs break-all">{booking.screenshotFileName}</span>
-                                  </div>
-                                ) : (
-                                  <p className="text-brand-brown/40 text-xs italic">No screenshot uploaded</p>
+                      {/* Expanded Row */}
+                      {expandedRow === idx && (
+                        <TableRow className="bg-mustard/5 hover:bg-mustard/5">
+                          <TableCell colSpan={10} className="py-4 px-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                              <div>
+                                <p className="font-bold text-brown/60 uppercase text-xs tracking-wider mb-2">Payment Info</p>
+                                <p className="text-brown"><span className="text-brown/60">Method:</span> {booking.paymentDetails.paymentMethod}</p>
+                                {booking.paymentDetails.upiDetails && (
+                                  <p className="text-brown"><span className="text-brown/60">UPI Ref:</span> {booking.paymentDetails.upiDetails}</p>
+                                )}
+                                {booking.paymentDetails.bankDetails && (
+                                  <p className="text-brown"><span className="text-brown/60">Bank Ref:</span> {booking.paymentDetails.bankDetails}</p>
                                 )}
                               </div>
-
-                              {/* Special Request */}
-                              <div className="space-y-2">
-                                <p className="text-xs font-bold text-brand-brown/50 uppercase tracking-wide flex items-center gap-1">
-                                  <MessageSquare className="w-3 h-3" /> Special Request
+                              <div>
+                                <p className="font-bold text-brown/60 uppercase text-xs tracking-wider mb-2">Screenshot</p>
+                                <p className="text-brown">
+                                  {booking.screenshotFileName ? booking.screenshotFileName : <span className="text-brown/40 italic">Not provided</span>}
                                 </p>
-                                <p className="text-brand-brown/70 text-xs">
-                                  {booking.specialRequest || <span className="italic text-brand-brown/30">None</span>}
+                              </div>
+                              <div>
+                                <p className="font-bold text-brown/60 uppercase text-xs tracking-wider mb-2">Special Request</p>
+                                <p className="text-brown">
+                                  {booking.specialRequest || <span className="text-brown/40 italic">None</span>}
                                 </p>
                               </div>
                             </div>
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       )}
                     </React.Fragment>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
         </div>
 
-        {/* Footer summary */}
-        {allBookings.length > 0 && (
-          <p className="text-center text-brand-brown/40 text-xs mt-6">
-            {allBookings.length} total reservation{allBookings.length !== 1 ? 's' : ''} · {pendingCount} pending · {confirmedCount} confirmed · {rejectedCount} rejected
-          </p>
-        )}
+        {/* Footer note */}
+        <p className="text-center text-brown/30 text-xs pb-4">
+          Pind Pahadi Admin Dashboard · {new Date().getFullYear()}
+        </p>
       </div>
     </div>
   );

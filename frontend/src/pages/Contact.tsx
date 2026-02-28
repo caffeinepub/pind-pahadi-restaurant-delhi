@@ -1,69 +1,88 @@
 import React, { useState, useRef } from 'react';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useSubmitBooking } from '../hooks/useQueries';
-import {
-  Phone, MapPin, Clock, Users, Calendar, MessageSquare,
-  LogIn, AlertCircle, CreditCard, Building2, Upload, X
-} from 'lucide-react';
 import BookingConfirmation from '../components/BookingConfirmation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Lock, Upload, X, Loader2 } from 'lucide-react';
 
-// Restaurant payment info — update these as needed
-const RESTAURANT_UPI = 'pindpahadi@upi';
-const RESTAURANT_BANK = 'HDFC Bank | A/C: 1234567890 | IFSC: HDFC0001234';
-const ADVANCE_AMOUNT = 500;
+function generateReference(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let ref = 'PP-';
+  for (let i = 0; i < 6; i++) ref += chars[Math.floor(Math.random() * chars.length)];
+  return ref;
+}
+
+interface BookingFormData {
+  name: string;
+  phone: string;
+  guests: string;
+  date: string;
+  time: string;
+  specialRequest: string;
+  paymentMethod: string;
+  upiTransactionId: string;
+  bankReference: string;
+  advanceAmount: string;
+  screenshotFile: File | null;
+}
+
+const TIME_SLOTS = [
+  '12:00 PM', '12:30 PM', '1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM',
+  '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM', '9:00 PM', '9:30 PM', '10:00 PM',
+];
 
 export default function Contact() {
   const { identity, login, loginStatus } = useInternetIdentity();
-  const isAuthenticated = !!identity;
-  const isLoggingIn = loginStatus === 'logging-in';
+  const submitBooking = useSubmitBooking();
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<BookingFormData>({
     name: '',
     phone: '',
     guests: '2',
     date: '',
     time: '',
     specialRequest: '',
-  });
-
-  const [payment, setPayment] = useState({
     paymentMethod: 'UPI',
-    upiId: '',
-    bankDetails: '',
-    advanceAmount: String(ADVANCE_AMOUNT),
+    upiTransactionId: '',
+    bankReference: '',
+    advanceAmount: '500',
+    screenshotFile: null,
   });
 
-  const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
   const [submitted, setSubmitted] = useState(false);
-  const [submittedData, setSubmittedData] = useState<typeof form & typeof payment & { screenshotFileName: string | null } | null>(null);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submittedData, setSubmittedData] = useState<BookingFormData | null>(null);
+  const [reference, setReference] = useState('');
+  const [errors, setErrors] = useState<Partial<Record<keyof BookingFormData, string>>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const submitBooking = useSubmitBooking();
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const setField = (field: keyof BookingFormData, value: string | File | null) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+    setErrors(prev => ({ ...prev, [field]: undefined }));
   };
 
-  const handlePaymentChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setPayment(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] ?? null;
-    setScreenshotFile(file);
-  };
-
-  const handleRemoveFile = () => {
-    setScreenshotFile(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
+  const validate = (): boolean => {
+    const newErrors: Partial<Record<keyof BookingFormData, string>> = {};
+    if (!form.name.trim()) newErrors.name = 'Name is required';
+    if (!form.phone.trim() || !/^\d{10}$/.test(form.phone.trim())) newErrors.phone = 'Valid 10-digit phone number required';
+    if (!form.date) newErrors.date = 'Date is required';
+    if (!form.time) newErrors.time = 'Time is required';
+    const guestsNum = parseInt(form.guests);
+    if (isNaN(guestsNum) || guestsNum < 1 || guestsNum > 10) newErrors.guests = 'Guests must be between 1 and 10';
+    const advance = parseInt(form.advanceAmount);
+    if (isNaN(advance) || advance < 0) newErrors.advanceAmount = 'Enter a valid advance amount';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isAuthenticated) return;
+    if (!validate()) return;
 
-    setSubmitError(null);
+    const ref = generateReference();
 
     try {
       await submitBooking.mutateAsync({
@@ -73,416 +92,327 @@ export default function Contact() {
         date: form.date,
         time: form.time,
         specialRequest: form.specialRequest.trim(),
-        screenshotFileName: screenshotFile ? screenshotFile.name : null,
+        screenshotFileName: form.screenshotFile ? form.screenshotFile.name : null,
         paymentDetails: {
-          advanceAmount: BigInt(parseInt(payment.advanceAmount) || 0),
-          paymentMethod: payment.paymentMethod,
-          upiDetails: payment.upiId.trim(),
-          bankDetails: payment.bankDetails.trim(),
+          advanceAmount: BigInt(parseInt(form.advanceAmount) || 0),
+          paymentMethod: form.paymentMethod,
+          upiDetails: form.upiTransactionId.trim(),
+          bankDetails: form.bankReference.trim(),
         },
       });
 
-      setSubmittedData({
-        ...form,
-        ...payment,
-        screenshotFileName: screenshotFile ? screenshotFile.name : null,
-      });
+      setReference(ref);
+      setSubmittedData({ ...form });
       setSubmitted(true);
-      setForm({ name: '', phone: '', guests: '2', date: '', time: '', specialRequest: '' });
-      setPayment({ paymentMethod: 'UPI', upiId: '', bankDetails: '', advanceAmount: String(ADVANCE_AMOUNT) });
-      setScreenshotFile(null);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes('Unauthorized') || msg.includes('auth')) {
-        setSubmitError('Authentication error. Please log in again and retry.');
-      } else if (msg.includes('guests')) {
-        setSubmitError('Number of guests must be between 1 and 10.');
-      } else {
-        setSubmitError('Failed to submit booking. Please try again.');
-      }
+    } catch (err) {
+      console.error('Booking submission error:', err);
     }
   };
 
-  const today = new Date().toISOString().split('T')[0];
+  const handleNewBooking = () => {
+    setSubmitted(false);
+    setSubmittedData(null);
+    setReference('');
+    setForm({
+      name: '',
+      phone: '',
+      guests: '2',
+      date: '',
+      time: '',
+      specialRequest: '',
+      paymentMethod: 'UPI',
+      upiTransactionId: '',
+      bankReference: '',
+      advanceAmount: '500',
+      screenshotFile: null,
+    });
+  };
 
+  // Not logged in
+  if (!identity) {
+    return (
+      <div className="min-h-screen bg-cream flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-card border border-mustard/30 max-w-sm w-full p-8 text-center">
+          <div className="w-16 h-16 bg-brown/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-8 h-8 text-brown" />
+          </div>
+          <h2 className="text-2xl font-bold text-brown font-poppins mb-2">Sign In to Book</h2>
+          <p className="text-brown/60 text-sm mb-6">
+            Please sign in with Internet Identity to make a reservation at Pind Pahadi.
+          </p>
+          <Button
+            onClick={login}
+            disabled={loginStatus === 'logging-in'}
+            className="w-full bg-brown hover:bg-brown/90 text-white font-semibold py-3 rounded-xl"
+          >
+            {loginStatus === 'logging-in' ? 'Signing in…' : 'Sign In to Continue'}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Booking submitted successfully
   if (submitted && submittedData) {
     return (
       <BookingConfirmation
-        bookingData={{
-          name: submittedData.name,
-          phone: submittedData.phone,
-          guests: submittedData.guests,
-          date: submittedData.date,
-          time: submittedData.time,
-          specialRequest: submittedData.specialRequest,
+        name={submittedData.name}
+        phone={submittedData.phone}
+        guests={BigInt(parseInt(submittedData.guests))}
+        date={submittedData.date}
+        time={submittedData.time}
+        specialRequest={submittedData.specialRequest}
+        paymentDetails={{
+          advanceAmount: BigInt(parseInt(submittedData.advanceAmount) || 0),
           paymentMethod: submittedData.paymentMethod,
-          advanceAmount: submittedData.advanceAmount,
-          upiId: submittedData.upiId,
-          bankDetails: submittedData.bankDetails,
-          screenshotFileName: submittedData.screenshotFileName,
+          upiDetails: submittedData.upiTransactionId,
+          bankDetails: submittedData.bankReference,
         }}
-        onBookAnother={() => {
-          setSubmitted(false);
-          setSubmittedData(null);
-        }}
+        screenshotFileName={submittedData.screenshotFile?.name ?? null}
+        reference={reference}
+        onClose={handleNewBooking}
       />
     );
   }
 
+  const today = new Date().toISOString().split('T')[0];
+
   return (
-    <div className="min-h-screen bg-brand-cream-light">
-      {/* Hero */}
-      <section className="bg-brand-brown text-white py-16 px-4 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold font-poppins mb-3">Book Your Table</h1>
-        <p className="text-brand-cream/80 text-lg max-w-xl mx-auto">
-          Reserve your spot for an authentic Punjabi dining experience
-        </p>
-      </section>
-
-      <div className="max-w-6xl mx-auto px-4 py-12 grid md:grid-cols-2 gap-10">
-        {/* Contact Info */}
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-2xl font-bold text-brand-brown font-poppins mb-4">Contact & Location</h2>
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <Phone className="w-5 h-5 text-brand-red mt-1 shrink-0" />
-                <div>
-                  <p className="font-semibold text-brand-brown">Phone</p>
-                  <a href="tel:+919891142585" className="text-brand-brown/70 hover:text-brand-red transition-colors">
-                    +91 98911 42585
-                  </a>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-brand-red mt-1 shrink-0" />
-                <div>
-                  <p className="font-semibold text-brand-brown">Address</p>
-                  <p className="text-brand-brown/70">Pind Pahadi Restaurant, Delhi NCR, India</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Clock className="w-5 h-5 text-brand-red mt-1 shrink-0" />
-                <div>
-                  <p className="font-semibold text-brand-brown">Hours</p>
-                  <p className="text-brand-brown/70">Mon–Sun: 11:00 AM – 11:00 PM</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Payment Info Box */}
-          <div className="bg-white rounded-2xl shadow-card p-6 border-l-4 border-brand-mustard">
-            <h3 className="text-lg font-bold text-brand-brown font-poppins mb-3 flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-brand-mustard" />
-              Advance Payment Info
-            </h3>
-            <p className="text-brand-brown/70 text-sm mb-4">
-              An advance of <span className="font-bold text-brand-brown">₹{ADVANCE_AMOUNT}</span> is required to confirm your reservation. Pay via:
-            </p>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3 p-3 bg-brand-cream rounded-xl">
-                <CreditCard className="w-4 h-4 text-brand-brown mt-0.5 shrink-0" />
-                <div>
-                  <p className="text-xs font-bold text-brand-brown uppercase tracking-wide">UPI</p>
-                  <p className="text-brand-brown/80 text-sm font-mono">{RESTAURANT_UPI}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 p-3 bg-brand-cream rounded-xl">
-                <Building2 className="w-4 h-4 text-brand-brown mt-0.5 shrink-0" />
-                <div>
-                  <p className="text-xs font-bold text-brand-brown uppercase tracking-wide">Bank Transfer</p>
-                  <p className="text-brand-brown/80 text-sm">{RESTAURANT_BANK}</p>
-                </div>
-              </div>
-            </div>
-            <p className="text-brand-brown/50 text-xs mt-3">
-              * Please upload a payment screenshot in the booking form below.
-            </p>
-          </div>
-
-          {/* Map */}
-          <div className="rounded-2xl overflow-hidden shadow-card h-64">
-            <iframe
-              title="Restaurant Location"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d224345.83923192776!2d77.06889754725782!3d28.52758200617607!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cfd5b347eb62d%3A0x52c2b7494e204dce!2sNew%20Delhi%2C%20Delhi!5e0!3m2!1sen!2sin!4v1699000000000!5m2!1sen!2sin"
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-            />
-          </div>
+    <div className="min-h-screen bg-cream py-12 px-4">
+      <div className="max-w-2xl mx-auto">
+        {/* Page Header */}
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-bold text-brown font-poppins mb-3">Book a Table</h1>
+          <p className="text-brown/60">Reserve your spot for an authentic Punjabi dining experience</p>
         </div>
 
-        {/* Booking Form */}
-        <div className="bg-white rounded-2xl shadow-card p-8">
-          <h2 className="text-2xl font-bold text-brand-brown font-poppins mb-6">Reserve a Table</h2>
-
-          {/* Auth status banner */}
-          {!isAuthenticated ? (
-            <div className="mb-6 p-4 bg-brand-cream rounded-xl border border-brand-brown/20 flex flex-col gap-3">
-              <div className="flex items-center gap-2 text-brand-brown">
-                <AlertCircle className="w-5 h-5 text-brand-red shrink-0" />
-                <p className="text-sm font-medium">Please log in to submit a booking</p>
-              </div>
-              <button
-                onClick={login}
-                disabled={isLoggingIn}
-                className="flex items-center justify-center gap-2 bg-brand-brown text-white px-5 py-2.5 rounded-full font-semibold hover:bg-brand-brown/90 transition-colors disabled:opacity-60 text-sm"
-              >
-                <LogIn className="w-4 h-4" />
-                {isLoggingIn ? 'Logging in…' : 'Log In to Book'}
-              </button>
-            </div>
-          ) : (
-            <div className="mb-6 p-3 bg-green-50 border border-green-200 rounded-xl flex items-center gap-2 text-green-700 text-sm">
-              <div className="w-4 h-4 rounded-full bg-green-500 shrink-0" />
-              <span>Logged in — you can now submit your booking</span>
-            </div>
-          )}
-
-          {submitError && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-700 text-sm">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{submitError}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Name & Phone */}
-            <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-card border border-mustard/20 overflow-hidden">
+          {/* Guest Details */}
+          <div className="p-6 border-b border-mustard/10">
+            <h2 className="text-lg font-bold text-brown font-poppins mb-4">Guest Details</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-brand-brown mb-1">Full Name *</label>
-                <input
-                  type="text"
-                  name="name"
+                <Label htmlFor="name" className="text-brown font-medium text-sm mb-1.5 block">Full Name *</Label>
+                <Input
+                  id="name"
                   value={form.name}
-                  onChange={handleChange}
-                  required
-                  disabled={!isAuthenticated}
-                  placeholder="Your name"
-                  className="w-full border border-brand-brown/20 rounded-xl px-4 py-2.5 text-brand-brown placeholder-brand-brown/40 focus:outline-none focus:ring-2 focus:ring-brand-brown/30 disabled:bg-gray-50 disabled:cursor-not-allowed text-sm"
+                  onChange={e => setField('name', e.target.value)}
+                  placeholder="Your full name"
+                  className={`border-mustard/30 focus:ring-mustard/40 ${errors.name ? 'border-red-400' : ''}`}
                 />
+                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
               </div>
               <div>
-                <label className="block text-sm font-semibold text-brand-brown mb-1">Phone *</label>
-                <input
-                  type="tel"
-                  name="phone"
+                <Label htmlFor="phone" className="text-brown font-medium text-sm mb-1.5 block">Phone Number *</Label>
+                <Input
+                  id="phone"
                   value={form.phone}
-                  onChange={handleChange}
-                  required
-                  disabled={!isAuthenticated}
-                  placeholder="+91 XXXXX XXXXX"
-                  className="w-full border border-brand-brown/20 rounded-xl px-4 py-2.5 text-brand-brown placeholder-brand-brown/40 focus:outline-none focus:ring-2 focus:ring-brand-brown/30 disabled:bg-gray-50 disabled:cursor-not-allowed text-sm"
+                  onChange={e => setField('phone', e.target.value)}
+                  placeholder="10-digit mobile number"
+                  maxLength={10}
+                  className={`border-mustard/30 focus:ring-mustard/40 ${errors.phone ? 'border-red-400' : ''}`}
                 />
+                {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
               </div>
             </div>
+          </div>
 
-            {/* Guests & Date */}
-            <div className="grid grid-cols-2 gap-4">
+          {/* Reservation Details */}
+          <div className="p-6 border-b border-mustard/10">
+            <h2 className="text-lg font-bold text-brown font-poppins mb-4">Reservation Details</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-brand-brown mb-1">
-                  <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> Guests *</span>
-                </label>
-                <select
-                  name="guests"
-                  value={form.guests}
-                  onChange={handleChange}
-                  required
-                  disabled={!isAuthenticated}
-                  className="w-full border border-brand-brown/20 rounded-xl px-4 py-2.5 text-brand-brown focus:outline-none focus:ring-2 focus:ring-brand-brown/30 disabled:bg-gray-50 disabled:cursor-not-allowed text-sm bg-white"
-                >
-                  {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                    <option key={n} value={n}>{n} {n === 1 ? 'Guest' : 'Guests'}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-brand-brown mb-1">
-                  <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> Date *</span>
-                </label>
-                <input
+                <Label htmlFor="date" className="text-brown font-medium text-sm mb-1.5 block">Date *</Label>
+                <Input
+                  id="date"
                   type="date"
-                  name="date"
                   value={form.date}
-                  onChange={handleChange}
-                  required
-                  disabled={!isAuthenticated}
                   min={today}
-                  className="w-full border border-brand-brown/20 rounded-xl px-4 py-2.5 text-brand-brown focus:outline-none focus:ring-2 focus:ring-brand-brown/30 disabled:bg-gray-50 disabled:cursor-not-allowed text-sm"
+                  onChange={e => setField('date', e.target.value)}
+                  className={`border-mustard/30 focus:ring-mustard/40 ${errors.date ? 'border-red-400' : ''}`}
                 />
+                {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date}</p>}
+              </div>
+              <div>
+                <Label className="text-brown font-medium text-sm mb-1.5 block">Time *</Label>
+                <Select value={form.time} onValueChange={v => setField('time', v)}>
+                  <SelectTrigger className={`border-mustard/30 ${errors.time ? 'border-red-400' : ''}`}>
+                    <SelectValue placeholder="Select time" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TIME_SLOTS.map(slot => (
+                      <SelectItem key={slot} value={slot}>{slot}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.time && <p className="text-red-500 text-xs mt-1">{errors.time}</p>}
+              </div>
+              <div>
+                <Label className="text-brown font-medium text-sm mb-1.5 block">Guests *</Label>
+                <Select value={form.guests} onValueChange={v => setField('guests', v)}>
+                  <SelectTrigger className="border-mustard/30">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[...Array(10)].map((_, i) => (
+                      <SelectItem key={i + 1} value={String(i + 1)}>{i + 1} {i === 0 ? 'person' : 'people'}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.guests && <p className="text-red-500 text-xs mt-1">{errors.guests}</p>}
               </div>
             </div>
-
-            {/* Time */}
-            <div>
-              <label className="block text-sm font-semibold text-brand-brown mb-1">
-                <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> Preferred Time *</span>
-              </label>
-              <select
-                name="time"
-                value={form.time}
-                onChange={handleChange}
-                required
-                disabled={!isAuthenticated}
-                className="w-full border border-brand-brown/20 rounded-xl px-4 py-2.5 text-brand-brown focus:outline-none focus:ring-2 focus:ring-brand-brown/30 disabled:bg-gray-50 disabled:cursor-not-allowed text-sm bg-white"
-              >
-                <option value="">Select a time slot</option>
-                {['11:00 AM','12:00 PM','01:00 PM','02:00 PM','03:00 PM','06:00 PM','07:00 PM','08:00 PM','09:00 PM','10:00 PM'].map(t => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Special Requests */}
-            <div>
-              <label className="block text-sm font-semibold text-brand-brown mb-1">
-                <span className="flex items-center gap-1"><MessageSquare className="w-3.5 h-3.5" /> Special Requests</span>
-              </label>
-              <textarea
-                name="specialRequest"
+            <div className="mt-4">
+              <Label htmlFor="specialRequest" className="text-brown font-medium text-sm mb-1.5 block">Special Requests</Label>
+              <Textarea
+                id="specialRequest"
                 value={form.specialRequest}
-                onChange={handleChange}
-                disabled={!isAuthenticated}
-                rows={2}
+                onChange={e => setField('specialRequest', e.target.value)}
                 placeholder="Dietary requirements, occasion, seating preference…"
-                className="w-full border border-brand-brown/20 rounded-xl px-4 py-2.5 text-brand-brown placeholder-brand-brown/40 focus:outline-none focus:ring-2 focus:ring-brand-brown/30 disabled:bg-gray-50 disabled:cursor-not-allowed text-sm resize-none"
+                rows={3}
+                className="border-mustard/30 focus:ring-mustard/40 resize-none"
               />
             </div>
+          </div>
 
-            {/* Payment Details Section */}
-            <div className="border-t border-brand-brown/10 pt-4">
-              <h3 className="text-base font-bold text-brand-brown mb-3 flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-brand-mustard" />
-                Payment Details
-                <span className="text-xs font-normal text-brand-brown/50 ml-1">(Advance: ₹{ADVANCE_AMOUNT})</span>
-              </h3>
+          {/* Payment Details */}
+          <div className="p-6 border-b border-mustard/10">
+            <h2 className="text-lg font-bold text-brown font-poppins mb-1">Payment Details</h2>
+            <p className="text-brown/50 text-sm mb-4">Pay an advance to confirm your booking</p>
 
-              {/* Payment Method */}
-              <div className="mb-3">
-                <label className="block text-sm font-semibold text-brand-brown mb-1">Payment Method *</label>
-                <select
-                  name="paymentMethod"
-                  value={payment.paymentMethod}
-                  onChange={handlePaymentChange}
-                  required
-                  disabled={!isAuthenticated}
-                  className="w-full border border-brand-brown/20 rounded-xl px-4 py-2.5 text-brand-brown focus:outline-none focus:ring-2 focus:ring-brand-brown/30 disabled:bg-gray-50 disabled:cursor-not-allowed text-sm bg-white"
-                >
-                  <option value="UPI">UPI</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
-                  <option value="Cash">Cash (Pay at Restaurant)</option>
-                  <option value="Other">Other</option>
-                </select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label className="text-brown font-medium text-sm mb-1.5 block">Payment Method</Label>
+                <Select value={form.paymentMethod} onValueChange={v => setField('paymentMethod', v)}>
+                  <SelectTrigger className="border-mustard/30">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="UPI">UPI</SelectItem>
+                    <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                    <SelectItem value="Cash">Cash (Pay at Restaurant)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-
-              {/* UPI ID (shown when UPI selected) */}
-              {(payment.paymentMethod === 'UPI' || payment.paymentMethod === 'Other') && (
-                <div className="mb-3">
-                  <label className="block text-sm font-semibold text-brand-brown mb-1">
-                    {payment.paymentMethod === 'UPI' ? 'Your UPI ID / Transaction ID' : 'Transaction Reference'}
-                  </label>
-                  <input
-                    type="text"
-                    name="upiId"
-                    value={payment.upiId}
-                    onChange={handlePaymentChange}
-                    disabled={!isAuthenticated}
-                    placeholder={payment.paymentMethod === 'UPI' ? 'e.g. yourname@upi or txn ID' : 'Transaction reference'}
-                    className="w-full border border-brand-brown/20 rounded-xl px-4 py-2.5 text-brand-brown placeholder-brand-brown/40 focus:outline-none focus:ring-2 focus:ring-brand-brown/30 disabled:bg-gray-50 disabled:cursor-not-allowed text-sm"
-                  />
-                </div>
-              )}
-
-              {/* Bank Details (shown when Bank Transfer selected) */}
-              {payment.paymentMethod === 'Bank Transfer' && (
-                <div className="mb-3">
-                  <label className="block text-sm font-semibold text-brand-brown mb-1">Transaction / Reference Number</label>
-                  <input
-                    type="text"
-                    name="bankDetails"
-                    value={payment.bankDetails}
-                    onChange={handlePaymentChange}
-                    disabled={!isAuthenticated}
-                    placeholder="Bank transaction reference number"
-                    className="w-full border border-brand-brown/20 rounded-xl px-4 py-2.5 text-brand-brown placeholder-brand-brown/40 focus:outline-none focus:ring-2 focus:ring-brand-brown/30 disabled:bg-gray-50 disabled:cursor-not-allowed text-sm"
-                  />
-                </div>
-              )}
-
-              {/* Advance Amount */}
-              <div className="mb-3">
-                <label className="block text-sm font-semibold text-brand-brown mb-1">Advance Amount Paid (₹)</label>
-                <input
+              <div>
+                <Label htmlFor="advanceAmount" className="text-brown font-medium text-sm mb-1.5 block">Advance Amount (₹)</Label>
+                <Input
+                  id="advanceAmount"
                   type="number"
-                  name="advanceAmount"
-                  value={payment.advanceAmount}
-                  onChange={handlePaymentChange}
-                  disabled={!isAuthenticated}
+                  value={form.advanceAmount}
+                  onChange={e => setField('advanceAmount', e.target.value)}
                   min="0"
                   placeholder="500"
-                  className="w-full border border-brand-brown/20 rounded-xl px-4 py-2.5 text-brand-brown placeholder-brand-brown/40 focus:outline-none focus:ring-2 focus:ring-brand-brown/30 disabled:bg-gray-50 disabled:cursor-not-allowed text-sm"
+                  className={`border-mustard/30 focus:ring-mustard/40 ${errors.advanceAmount ? 'border-red-400' : ''}`}
                 />
-              </div>
-
-              {/* Screenshot Upload */}
-              <div>
-                <label className="block text-sm font-semibold text-brand-brown mb-1">
-                  <span className="flex items-center gap-1"><Upload className="w-3.5 h-3.5" /> Payment Screenshot</span>
-                </label>
-                {screenshotFile ? (
-                  <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-xl">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-green-700 text-sm font-medium truncate">{screenshotFile.name}</p>
-                      <p className="text-green-600 text-xs">{(screenshotFile.size / 1024).toFixed(1)} KB</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleRemoveFile}
-                      className="p-1 rounded-full hover:bg-green-100 text-green-700 transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <label
-                    className={`flex flex-col items-center justify-center gap-2 border-2 border-dashed border-brand-brown/20 rounded-xl px-4 py-4 cursor-pointer hover:border-brand-brown/40 hover:bg-brand-cream/30 transition-colors ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    <Upload className="w-6 h-6 text-brand-brown/40" />
-                    <span className="text-brand-brown/60 text-sm text-center">
-                      Click to upload payment screenshot<br />
-                      <span className="text-xs text-brand-brown/40">PNG, JPG up to 5MB</span>
-                    </span>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      disabled={!isAuthenticated}
-                      className="hidden"
-                    />
-                  </label>
-                )}
+                {errors.advanceAmount && <p className="text-red-500 text-xs mt-1">{errors.advanceAmount}</p>}
               </div>
             </div>
 
-            <button
+            {form.paymentMethod === 'UPI' && (
+              <div className="mt-4">
+                <Label htmlFor="upiTransactionId" className="text-brown font-medium text-sm mb-1.5 block">UPI Transaction ID</Label>
+                <Input
+                  id="upiTransactionId"
+                  value={form.upiTransactionId}
+                  onChange={e => setField('upiTransactionId', e.target.value)}
+                  placeholder="Enter UPI transaction ID"
+                  className="border-mustard/30 focus:ring-mustard/40"
+                />
+              </div>
+            )}
+
+            {form.paymentMethod === 'Bank Transfer' && (
+              <div className="mt-4">
+                <Label htmlFor="bankReference" className="text-brown font-medium text-sm mb-1.5 block">Bank Reference Number</Label>
+                <Input
+                  id="bankReference"
+                  value={form.bankReference}
+                  onChange={e => setField('bankReference', e.target.value)}
+                  placeholder="Enter bank reference number"
+                  className="border-mustard/30 focus:ring-mustard/40"
+                />
+              </div>
+            )}
+
+            {/* Screenshot Upload */}
+            {form.paymentMethod !== 'Cash' && (
+              <div className="mt-4">
+                <Label className="text-brown font-medium text-sm mb-1.5 block">Payment Screenshot (Optional)</Label>
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-mustard/30 rounded-xl p-4 text-center cursor-pointer hover:border-mustard/60 hover:bg-mustard/5 transition-colors"
+                >
+                  {form.screenshotFile ? (
+                    <div className="flex items-center justify-between">
+                      <span className="text-brown text-sm font-medium">{form.screenshotFile.name}</span>
+                      <button
+                        type="button"
+                        onClick={e => { e.stopPropagation(); setField('screenshotFile', null); }}
+                        className="text-brown/40 hover:text-red-500 ml-2"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1">
+                      <Upload className="w-6 h-6 text-mustard" />
+                      <span className="text-brown/60 text-sm">Click to upload payment screenshot</span>
+                      <span className="text-brown/40 text-xs">PNG, JPG up to 5MB</span>
+                    </div>
+                  )}
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={e => setField('screenshotFile', e.target.files?.[0] ?? null)}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Submit */}
+          <div className="p-6">
+            {submitBooking.isError && (
+              <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-red-600 text-sm">Failed to submit booking. Please try again.</p>
+              </div>
+            )}
+            <Button
               type="submit"
-              disabled={!isAuthenticated || submitBooking.isPending}
-              className="w-full bg-brand-brown text-white py-3 rounded-full font-bold text-base hover:bg-brand-brown/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              disabled={submitBooking.isPending}
+              className="w-full bg-brown hover:bg-brown/90 text-white font-bold py-4 rounded-xl text-lg flex items-center justify-center gap-2"
             >
               {submitBooking.isPending ? (
                 <>
-                  <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                  Submitting…
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Submitting Booking…
                 </>
               ) : (
-                'Confirm Reservation'
+                'Confirm Booking'
               )}
-            </button>
-          </form>
+            </Button>
+            <p className="text-center text-brown/40 text-xs mt-3">
+              By booking, you agree to our cancellation policy. We'll call to confirm your reservation.
+            </p>
+          </div>
+        </form>
+
+        {/* Contact Info */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+          {[
+            { icon: '📞', label: 'Call Us', value: '+91 98911 42585' },
+            { icon: '📍', label: 'Location', value: 'Sector 18, Noida' },
+            { icon: '🕐', label: 'Hours', value: '12 PM – 11 PM Daily' },
+          ].map(item => (
+            <div key={item.label} className="bg-white rounded-xl border border-mustard/20 p-4 shadow-sm">
+              <div className="text-2xl mb-1">{item.icon}</div>
+              <p className="text-brown/60 text-xs font-medium uppercase tracking-wide">{item.label}</p>
+              <p className="text-brown font-semibold text-sm mt-0.5">{item.value}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>

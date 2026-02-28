@@ -1,70 +1,51 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-28T03:51:00.332Z",
+  "generatedAt": "2026-02-28T04:03:23.685Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 2,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Fix the admin dashboard so that table bookings submitted by users appear correctly. Ensure that after a user submits a booking via the Contact/booking page, it is retrievable and displayed in the Admin dashboard booking list without requiring a manual refresh or re-login.",
+        "summary": "On the booking confirmation screen (after a reservation is successfully submitted), add a 'Send to WhatsApp' button that: (1) captures a screenshot of the BookingConfirmation card using html2canvas or equivalent, (2) encodes it as an image, and (3) opens a WhatsApp share link (wa.me) pre-filled with a text message containing the booking reference, guest name, date/time, party size, and payment details, plus instructions to attach the screenshot image. Since WhatsApp Web does not support direct image-passing via URL, the flow should: save/download the screenshot automatically, then open a WhatsApp chat with the pre-filled text so the user can manually attach the saved image.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/Contact.tsx",
-          "frontend/src/pages/Admin.tsx"
+          "frontend/package.json",
+          "frontend/src/components/BookingConfirmation.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/Contact.tsx",
-          "frontend/src/pages/Admin.tsx"
+          "frontend/src/components/BookingConfirmation.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Restore the payment details section in the booking form on the Contact page. The section should allow users to enter or view payment-related information (e.g., advance payment amount, payment method, UPI/bank details for the restaurant) as part of the table booking flow.",
+        "summary": "Fix the admin dashboard so that newly submitted bookings reliably appear in the bookings list. Ensure the React Query hook that fetches all bookings (in useQueries.ts) is properly invalidated or refetched after any booking submission, confirmation, rejection, or deletion, and that the Admin page correctly calls this query and renders the results.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/Contact.tsx",
-          "frontend/src/pages/Admin.tsx"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/Admin.tsx",
+          "frontend/src/pages/Contact.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/Contact.tsx",
-          "frontend/src/pages/Admin.tsx"
-        ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Add a screenshot/capture option in the booking confirmation flow. After a user successfully submits a booking, provide a button that allows them to take or download a screenshot of their booking confirmation details (booking ID, name, date, time, party size, payment info) as an image or printable view.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/Contact.tsx",
-          "frontend/src/components/BookingConfirmation.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/Contact.tsx",
-          "frontend/src/components/BookingConfirmation.tsx"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/Admin.tsx",
+          "frontend/src/pages/Contact.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
     "frontend/src/components/BookingConfirmation.tsx",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
     "frontend/src/hooks/useQueries.ts",
     "frontend/src/pages/Admin.tsx",
     "frontend/src/pages/Contact.tsx",

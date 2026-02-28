@@ -1,37 +1,28 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Restaurant/service booking app with admin dashboard, table booking, payment details, and screenshot functionality.",
+  "summary": "Booking confirmation system that sends booking details with a screenshot to WhatsApp when a reservation is confirmed.",
   "architectural_notes": [
-    "App includes an admin dashboard that should display table bookings",
-    "Payment details section is a required feature"
+    "Admin dashboard connection is not working; WhatsApp messaging is the chosen alternative for booking notifications."
   ],
   "known_issues": [
-    "Table bookings submitted by users are not appearing in the admin dashboard"
+    "Admin dashboard booking connection is broken/unreliable."
   ],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-fix-the-admin-dashboard-so-that-table-bookings-submitted-by-users-appear-correctly-ensure-that-after-a-user-submits-a-booking-via-the-contact-booking-page-it-is-retrievable-and-displayed-in-the-admin-dashboard-booking-list-without-requiring-a-manual-refresh-or-re-login",
-      "title": "Fix the admin dashboard so that table bookings submitted by users appear correctly. Ensure that after a user submits a booking via the Contact/booking page, it is retrievable and displayed in the Admin dashboard booking list without requiring a manual refresh or re-login.",
+      "id": "feature-on-the-booking-confirmation-screen-after-a-reservation-is-successfully-submitted-add-a-send-to-whatsapp-button-that-1-captures-a-screenshot-of-the-bookingconfirmation-card-using-html2canvas-or-equivalent-2-encodes-it-as-an-image-and-3-opens-a-whatsapp-share-link-wa-me-pre-filled-with-a-text-message-containing-the-booking-reference-guest-name-date-time-party-size-and-payment-details-plus-instructions-to-attach-the-screenshot-image-since-whatsapp-web-does-not-support-direct-image-passing-via-url-the-flow-should-save-download-the-screenshot-automatically-then-open-a-whatsapp-chat-with-the-pre-filled-text-so-the-user-can-manually-attach-the-saved-image",
+      "title": "On the booking confirmation screen (after a reservation is successfully submitted), add a 'Send to WhatsApp' button that: (1) captures a screenshot of the BookingConfirmation card using html2canvas or equivalent, (2) encodes it as an image, and (3) opens a WhatsApp share link (wa.me) pre-filled with a text message containing the booking reference, guest name, date/time, party size, and payment details, plus instructions to attach the screenshot image. Since WhatsApp Web does not support direct image-passing via URL, the flow should: save/download the screenshot automatically, then open a WhatsApp chat with the pre-filled text so the user can manually attach the saved image.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-restore-the-payment-details-section-in-the-booking-form-on-the-contact-page-the-section-should-allow-users-to-enter-or-view-payment-related-information-e-g-advance-payment-amount-payment-method-upi-bank-details-for-the-restaurant-as-part-of-the-table-booking-flow",
-      "title": "Restore the payment details section in the booking form on the Contact page. The section should allow users to enter or view payment-related information (e.g., advance payment amount, payment method, UPI/bank details for the restaurant) as part of the table booking flow.",
+      "id": "feature-fix-the-admin-dashboard-so-that-newly-submitted-bookings-reliably-appear-in-the-bookings-list-ensure-the-react-query-hook-that-fetches-all-bookings-in-usequeries-ts-is-properly-invalidated-or-refetched-after-any-booking-submission-confirmation-rejection-or-deletion-and-that-the-admin-page-correctly-calls-this-query-and-renders-the-results",
+      "title": "Fix the admin dashboard so that newly submitted bookings reliably appear in the bookings list. Ensure the React Query hook that fetches all bookings (in useQueries.ts) is properly invalidated or refetched after any booking submission, confirmation, rejection, or deletion, and that the Admin page correctly calls this query and renders the results.",
       "reqIds": [
         "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-screenshot-capture-option-in-the-booking-confirmation-flow-after-a-user-successfully-submits-a-booking-provide-a-button-that-allows-them-to-take-or-download-a-screenshot-of-their-booking-confirmation-details-booking-id-name-date-time-party-size-payment-info-as-an-image-or-printable-view",
-      "title": "Add a screenshot/capture option in the booking confirmation flow. After a user successfully submits a booking, provide a button that allows them to take or download a screenshot of their booking confirmation details (booking ID, name, date, time, party size, payment info) as an image or printable view.",
-      "reqIds": [
-        "REQ-3"
       ],
       "version": 1
     }
@@ -39,25 +30,13 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Fix table bookings not appearing in admin dashboard",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Restore payment details section that was removed",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Add screenshot option/functionality",
+      "summary": "On booking confirmation, send booking details along with a screenshot to WhatsApp",
       "reqIds": [],
       "status": "pending"
     }
   ],
   "gameProjectType": "none",
-  "projectName": "Pind Pahadi Admin",
+  "projectName": "Pind Pahadi Booking",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

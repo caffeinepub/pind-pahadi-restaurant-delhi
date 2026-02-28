@@ -1,74 +1,55 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix admin dashboard bookings visibility, restore payment details, and add screenshot option",
+  "title": "Send booking confirmation details with screenshot to WhatsApp on confirm",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Fix admin dashboard so table bookings submitted by users appear correctly without requiring manual refresh or re-login",
+      "summary": "Add 'Send to WhatsApp' button to BookingConfirmation that captures a screenshot, downloads it, and opens WhatsApp with pre-filled booking details",
       "acceptanceCriteria": [
-        "After a user submits a table booking, it appears in the admin dashboard booking list",
-        "Admin can see all submitted bookings including name, date, time, party size, and contact info",
-        "Bookings persist and are visible after admin logs out and back in"
+        "A 'Send to WhatsApp' button is visible on the BookingConfirmation component after a booking is submitted successfully.",
+        "Clicking the button triggers a screenshot capture of the confirmation card and automatically downloads it as a PNG file.",
+        "A WhatsApp chat window opens with a pre-filled message containing: booking reference, guest name, date, time, party size, and payment details.",
+        "The pre-filled WhatsApp message includes a note prompting the user to attach the downloaded screenshot.",
+        "The WhatsApp number used matches the restaurant's existing contact number already used in WhatsAppButton.tsx."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/package.json",
           "operation": "modify",
-          "description": "Add automatic query invalidation after booking submission to ensure the admin bookings list refreshes immediately. Configure React Query to invalidate the 'bookings' query key when submitBooking mutation succeeds, ensuring real-time visibility of new bookings in the admin dashboard."
+          "description": "Add html2canvas library as a dependency to enable client-side screenshot capture of the booking confirmation card."
         },
         {
-          "path": "frontend/src/pages/Contact.tsx",
+          "path": "frontend/src/components/BookingConfirmation.tsx",
           "operation": "modify",
-          "description": "Update the booking submission flow to trigger query invalidation after successful submission. Ensure the form uses the updated useSubmitBooking hook that properly invalidates cached booking data, making new bookings immediately visible in the admin dashboard."
-        },
-        {
-          "path": "frontend/src/pages/Admin.tsx",
-          "operation": "modify",
-          "description": "Ensure the admin dashboard properly displays all booking fields including name, date, time, party size (guests), phone, and special requests. Verify the booking list uses the getAllBookings query and properly handles real-time updates when new bookings are submitted. Add loading and error states for better UX."
+          "description": "Add a 'Send to WhatsApp' button below the existing action buttons. Implement a click handler that: (1) uses html2canvas to capture a screenshot of the confirmation card element, (2) converts the canvas to a blob and triggers a browser download as 'booking-confirmation-<reference>.png', (3) extracts booking details (reference, name, date, time, guests, payment method, advance amount) from props, (4) constructs a WhatsApp message text with all booking details and a reminder to attach the downloaded screenshot, (5) opens a new window/tab to wa.me/<phone-number> with the pre-filled text parameter. Use the same phone number constant that WhatsAppButton.tsx uses. Handle loading states during screenshot generation and provide user feedback."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Restore payment details section in the booking form on the Contact page, allowing users to view payment information as part of the table booking flow",
+      "summary": "Fix admin dashboard bookings list by ensuring React Query invalidation after booking mutations and proper query setup in Admin page",
       "acceptanceCriteria": [
-        "Payment details section is visible in the booking form or booking confirmation flow",
-        "Payment details submitted by the user are stored with the booking record",
-        "Admin dashboard displays the payment details alongside each booking entry"
+        "After a user submits a booking via the Contact page, it appears in the Admin dashboard bookings list without requiring a manual page reload.",
+        "After an admin confirms, rejects, or deletes a booking, the list updates to reflect the change immediately.",
+        "The Admin page displays all bookings stored in the backend with correct status labels (pending/confirmed/rejected).",
+        "No stale or empty booking list is shown when valid bookings exist in the backend."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/Contact.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Add a payment details section to the booking form displaying the restaurant's payment information (UPI details, bank details, advance payment amount, and accepted payment methods). Wire the PaymentDetails data from the backend interface into the form, collecting any user-provided payment information and passing it to the submitBooking backend capability. The section should be clearly labeled and positioned after the booking details but before the submit button."
+          "description": "Review and fix the useSubmitBooking mutation hook to ensure it calls queryClient.invalidateQueries with the correct query key for the bookings list after a successful submission. Similarly, ensure useConfirmBooking, useRejectBooking, and useDeleteBooking mutation hooks all invalidate the ['bookings'] query key (or whatever key is used by the getAllBookings query) in their onSuccess callbacks. Verify that the query key used for invalidation matches the key used by the fetch query hook exactly."
         },
         {
           "path": "frontend/src/pages/Admin.tsx",
           "operation": "modify",
-          "description": "Display payment details for each booking in the admin dashboard. Show the advance amount, payment method, UPI details, and bank details alongside existing booking information (name, date, time, guests, phone). Format the payment information in a readable way, possibly in an expandable section or modal for each booking row."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Add screenshot/capture option in the booking confirmation flow allowing users to download a formatted confirmation card",
-      "acceptanceCriteria": [
-        "A 'Save / Screenshot' button is displayed on the booking confirmation screen after successful submission",
-        "Clicking the button captures or downloads a formatted confirmation card showing booking details",
-        "The confirmation card includes booking ID, guest name, date, time, party size, and payment details",
-        "The feature works without any third-party external service"
-      ],
-      "file_operations": [
+          "description": "Verify that the Admin page correctly calls the React Query hook that fetches all bookings (e.g., useGetAllBookings or equivalent from useQueries.ts). Ensure the query is enabled and not blocked by any conditional logic. Confirm that the bookings data returned by the query is properly rendered in the table, including correct mapping of booking status values. Add error handling to display a message if the query fails. Ensure the page shows a loading state while the query is fetching and handles empty states appropriately."
+        },
         {
           "path": "frontend/src/pages/Contact.tsx",
           "operation": "modify",
-          "description": "Add a booking confirmation view that appears after successful submission, displaying all booking details (booking ID/timestamp, guest name, date, time, party size, phone, special requests, and payment details) in a formatted confirmation card. Include a 'Download Confirmation' button that uses the html2canvas library (or browser-native screenshot APIs) to capture the confirmation card as an image and trigger a download. The confirmation card should be styled as a standalone receipt/ticket with clear typography and the restaurant's branding."
-        },
-        {
-          "path": "frontend/src/components/BookingConfirmation.tsx",
-          "operation": "create",
-          "description": "Create a new BookingConfirmation component that renders a printable/downloadable confirmation card with all booking details. Include props for booking data (name, date, time, guests, phone, special requests, payment details) and a unique booking reference. Style the component as a standalone ticket/receipt with clear sections, the restaurant logo/name, and QR code or reference number. Export a captureConfirmation helper function that uses html2canvas to convert the rendered component to an image blob and trigger download."
+          "description": "Review the booking form submission flow to ensure that after a successful booking submission, the component either triggers a manual refetch of the bookings query or relies on the mutation's onSuccess invalidation. Verify that the success state properly reflects the submitted booking and that no stale data is cached client-side that would prevent the admin dashboard from showing the new booking."
         }
       ]
     }
