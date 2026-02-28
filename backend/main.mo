@@ -1,22 +1,24 @@
 import Map "mo:core/Map";
 import Nat "mo:core/Nat";
+import Principal "mo:core/Principal";
 import Iter "mo:core/Iter";
 import Text "mo:core/Text";
-import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
 import Order "mo:core/Order";
+
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+
 import Migration "migration";
 
 (with migration = Migration.run)
 actor {
-  let accessControlState = AccessControl.initState();
-  include MixinAuthorization(accessControlState);
-
   public type UserProfile = {
     name : Text;
   };
+
+  let accessControlState = AccessControl.initState();
+  include MixinAuthorization(accessControlState);
 
   let userProfiles = Map.empty<Principal, UserProfile>();
 
@@ -41,6 +43,13 @@ actor {
     userProfiles.add(caller, profile);
   };
 
+  public type PaymentDetails = {
+    advanceAmount : Nat;
+    paymentMethod : Text;
+    upiDetails : Text;
+    bankDetails : Text;
+  };
+
   public type Booking = {
     name : Text;
     phone : Text;
@@ -48,9 +57,9 @@ actor {
     date : Text;
     time : Text;
     specialRequest : Text;
-    deposit : Nat;
-    screenshotFileName : ?Text;
     status : BookingStatus;
+    paymentDetails : PaymentDetails;
+    screenshotFileName : ?Text;
   };
 
   public type BookingStatus = {
@@ -66,35 +75,6 @@ actor {
     public func compareByDate(booking1 : Booking, booking2 : Booking) : Order.Order {
       Text.compare(booking1.date, booking2.date);
     };
-  };
-
-  public shared ({ caller }) func submitBookingInternal(
-    name : Text,
-    phone : Text,
-    guests : Nat,
-    date : Text,
-    time : Text,
-    specialRequest : Text,
-    screenshotFileName : ?Text,
-  ) : async Bool {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can submit bookings");
-    };
-    let deposit = guests * 100;
-    let booking : Booking = {
-      name;
-      phone;
-      guests;
-      date;
-      time;
-      specialRequest;
-      deposit;
-      screenshotFileName;
-      status = #pending;
-    };
-    bookings.add(lastId, booking);
-    lastId += 1;
-    true;
   };
 
   public query ({ caller }) func getAllBookings() : async [Booking] {
@@ -167,11 +147,12 @@ actor {
     time : Text,
     specialRequest : Text,
     screenshotFileName : ?Text,
+    paymentDetails : PaymentDetails,
   ) : async Bool {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can submit bookings");
+    if (guests < 1 or guests > 10) {
+      Runtime.trap("Invalid number of guests. Must be between 1 and 10.");
     };
-    let deposit = guests * 100;
+
     let booking : Booking = {
       name;
       phone;
@@ -179,13 +160,13 @@ actor {
       date;
       time;
       specialRequest;
-      deposit;
-      screenshotFileName;
       status = #pending;
+      paymentDetails;
+      screenshotFileName;
     };
+
     bookings.add(lastId, booking);
     lastId += 1;
     true;
   };
 };
-

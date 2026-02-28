@@ -1,41 +1,31 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-28T03:19:27.395Z",
-  "summary": "The diff implements all four requirements. REQ-1 is addressed by fixing backend/main.mo to use a stable Map for bookings with a status field and proper persistence. REQ-2 is addressed by fixing useSubmitBooking in useQueries.ts to call the correct actor method with the right argument shape and surfacing errors in Contact.tsx. REQ-3 is addressed by useGetAllBookings fetching from actor.getAllBookings() with proper query invalidation on Refresh. REQ-4 is addressed by adding StatusBadge, Confirm/Reject buttons in Admin.tsx, and useConfirmBooking/useRejectBooking mutations. A migration.mo file is also added as required by the constraints. One minor concern: the backend method is named submitBookingInternal in main.mo but called as actor.submitBooking in the frontend, which may indicate a mismatch resolvable only by generated bindings not shown in the diff.",
-  "missing_requirements": [
-    {
-      "id": "REQ-2",
-      "requirement": "Fix the useSubmitBooking mutation to call the correct backend actor method with the correct argument shape.",
-      "reason": "The backend method in main.mo is named submitBookingInternal but the frontend calls actor.submitBooking. The generated bindings file is not shown in the diff, so it is unclear if an alias resolves this mismatch. If no such alias exists, the frontend would fail to call the correct backend method.",
-      "evidence": [
-        "backend/main.mo",
-        "frontend/src/hooks/useQueries.ts"
-      ]
-    }
-  ],
+  "generatedAt": "2026-02-28T03:51:00.328Z",
+  "summary": "The diff implements all three requirements: REQ-1 (fix admin dashboard bookings visibility via proper paymentDetails passing in useSubmitBooking and query invalidation), REQ-2 (restore payment details section in Contact.tsx booking form with PaymentDetails stored in backend), and REQ-3 (BookingConfirmation component with a download/screenshot button using a print window). All acceptance criteria appear to be addressed.",
+  "missing_requirements": [],
   "hallucinated_features": [
     {
-      "description": "useDeleteBooking mutation added to frontend hooks and a clearAllBookings method added to backend",
-      "reason": "Neither the build request nor any requirement mentions a delete booking or clear all bookings feature. These were not requested.",
+      "description": "A migration module (backend/migration.mo) for transforming old booking records with a 'deposit' field into the new PaymentDetails structure was added.",
+      "reason": "The build request does not mention data migration or backward compatibility with old booking schema. This is an unrequested addition beyond the stated requirements.",
       "evidence": [
-        "frontend/src/hooks/useQueries.ts",
-        "backend/main.mo"
+        "backend/migration.mo"
       ]
     },
     {
-      "description": "getBookingsByStatus query method added to backend",
-      "reason": "No requirement asks for filtering bookings by status as a separate backend method. The requirements only ask for getAllBookings and status update endpoints.",
+      "description": "Payment screenshot upload feature in the booking form — users can upload a screenshot file of their payment as part of the booking submission.",
+      "reason": "REQ-2 asks for entering/viewing payment-related information (advance amount, payment method, UPI/bank details), but does not request a file upload input for a payment screenshot. The screenshotFileName field and file input UI were added beyond the stated requirement.",
       "evidence": [
-        "backend/main.mo"
+        "frontend/src/pages/Contact.tsx"
       ]
     }
   ],
-  "confidence": 0.78,
+  "confidence": 0.82,
   "changed_files": [
     "backend/main.mo",
     "backend/migration.mo",
     "frontend-file-summaries.txt",
+    "frontend/src/components/BookingConfirmation.tsx",
     "frontend/src/hooks/useQueries.ts",
     "frontend/src/pages/Admin.tsx",
     "frontend/src/pages/Contact.tsx",

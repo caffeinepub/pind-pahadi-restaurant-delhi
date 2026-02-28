@@ -1,56 +1,56 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { Booking } from '../backend';
+import { BookingStatus, PaymentDetails } from '../backend';
 
 export function useSubmitBooking() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor } = useActor();
   const queryClient = useQueryClient();
 
-  const mutation = useMutation({
+  return useMutation({
     mutationFn: async (data: {
       name: string;
       phone: string;
-      guests: number;
+      guests: bigint;
       date: string;
       time: string;
       specialRequest: string;
-      screenshotFileName?: string | null;
+      screenshotFileName: string | null;
+      paymentDetails: PaymentDetails;
     }) => {
-      if (!actor) throw new Error('Connection not ready. Please wait a moment and try again.');
-
+      if (!actor) throw new Error('Actor not available');
       const result = await actor.submitBooking(
         data.name,
         data.phone,
-        BigInt(data.guests),
+        data.guests,
         data.date,
         data.time,
         data.specialRequest,
-        data.screenshotFileName ?? null
+        data.screenshotFileName,
+        data.paymentDetails,
       );
       return result;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['allBookings'] });
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
     },
   });
-
-  return {
-    ...mutation,
-    actorFetching,
-  };
 }
 
-export function useGetAllBookings(enabled = true) {
+export function useGetAllBookings() {
   const { actor, isFetching: actorFetching } = useActor();
 
-  return useQuery<Booking[]>({
-    queryKey: ['bookings'],
+  return useQuery({
+    queryKey: ['allBookings'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      return actor.getAllBookings();
+      const result = await actor.getAllBookings();
+      return result;
     },
-    enabled: enabled && !!actor && !actorFetching,
-    retry: 1,
+    enabled: !!actor && !actorFetching,
+    retry: 3,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
+    staleTime: 0,
   });
 }
 
@@ -59,11 +59,12 @@ export function useConfirmBooking() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: bigint) => {
       if (!actor) throw new Error('Actor not available');
-      await actor.confirmBooking(BigInt(id));
+      await actor.confirmBooking(id);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['allBookings'] });
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
     },
   });
@@ -74,11 +75,12 @@ export function useRejectBooking() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: bigint) => {
       if (!actor) throw new Error('Actor not available');
-      await actor.rejectBooking(BigInt(id));
+      await actor.rejectBooking(id);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['allBookings'] });
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
     },
   });
@@ -89,11 +91,12 @@ export function useDeleteBooking() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: bigint) => {
       if (!actor) throw new Error('Actor not available');
-      await actor.deleteBooking(BigInt(id));
+      await actor.deleteBooking(id);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['allBookings'] });
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
     },
   });

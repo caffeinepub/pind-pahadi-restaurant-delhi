@@ -1,15 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the table booking flow so that submitted bookings are correctly saved in the backend and appear in the admin dashboard, and add Confirm/Reject actions for each booking.
+**Goal:** Fix admin dashboard bookings visibility, restore payment details in the booking form, and add a screenshot/download option on the booking confirmation screen.
 
 **Planned changes:**
-- Fix `bookTable` in `backend/main.mo` to use a stable variable and correctly append submitted bookings so they persist across calls and canister upgrades
-- Fix `useSubmitBooking` mutation in `frontend/src/hooks/useQueries.ts` to call the correct backend method with the correct argument shape; surface errors and success feedback to the user on the booking form
-- Fix `useGetBookings` query and the Admin dashboard (`frontend/src/pages/Admin.tsx`) to correctly fetch all bookings using an authenticated actor and display them in the reservations table; Refresh button re-fetches data
-- Update summary counters (Total Bookings, Total Guests, Total Deposits, Today) to reflect actual fetched booking data
-- Add Confirm and Reject action buttons to each booking row in the admin dashboard, calling backend methods to update booking status
-- Add a status badge (Pending / Confirmed / Rejected) to each booking row; disable action buttons for already-confirmed or already-rejected bookings
-- Add backend methods to update booking status and ensure status is stored in stable state
+- Fix the booking submission flow so that new table bookings submitted by users appear immediately and persistently in the admin dashboard booking list
+- Restore the payment details section in the booking form (advance payment amount, payment method, UPI/bank details), storing payment info with each booking record
+- Display payment details alongside each booking entry in the admin dashboard
+- Add a "Save / Screenshot" button on the booking confirmation screen that captures and downloads a formatted confirmation card (booking ID, guest name, date, time, party size, payment details) as an image, using no external services
 
-**User-visible outcome:** Table booking form submissions are reliably saved and immediately visible in the admin dashboard. Admins can confirm or reject each booking, with status badges reflecting the current state in real time.
+**User-visible outcome:** Users can complete a booking with payment details and immediately download a confirmation card. Admins can log in and see all submitted bookings including payment information without any manual refresh.

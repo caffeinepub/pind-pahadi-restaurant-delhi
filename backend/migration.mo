@@ -1,6 +1,5 @@
 import Map "mo:core/Map";
 import Nat "mo:core/Nat";
-import List "mo:core/List";
 
 module {
   type OldBooking = {
@@ -12,16 +11,11 @@ module {
     specialRequest : Text;
     deposit : Nat;
     screenshotFileName : ?Text;
-  };
-
-  type OldActor = {
-    bookings : List.List<OldBooking>;
-  };
-
-  public type BookingStatus = {
-    #pending;
-    #confirmed;
-    #rejected;
+    status : {
+      #pending;
+      #confirmed;
+      #rejected;
+    };
   };
 
   type NewBooking = {
@@ -31,32 +25,42 @@ module {
     date : Text;
     time : Text;
     specialRequest : Text;
-    deposit : Nat;
+    status : {
+      #pending;
+      #confirmed;
+      #rejected;
+    };
+    paymentDetails : {
+      advanceAmount : Nat;
+      paymentMethod : Text;
+      upiDetails : Text;
+      bankDetails : Text;
+    };
     screenshotFileName : ?Text;
-    status : BookingStatus;
   };
 
+  type OldActor = {
+    bookings : Map.Map<Nat, OldBooking>;
+  };
   type NewActor = {
     bookings : Map.Map<Nat, NewBooking>;
   };
 
   public func run(old : OldActor) : NewActor {
-    let bookingsMap = Map.fromIter<Nat, NewBooking>(
-      old.bookings.values().enumerate().map(
-        func((index, oldBooking)) {
-          (
-            index,
-            {
-              oldBooking with
-              status = #pending;
-            },
-          );
-        }
-      )
+    let newBookings = old.bookings.map<Nat, OldBooking, NewBooking>(
+      func(_id, oldBooking) {
+        {
+          oldBooking with
+          status = oldBooking.status;
+          paymentDetails = {
+            advanceAmount = oldBooking.deposit;
+            paymentMethod = "Not specified";
+            upiDetails = "Not specified";
+            bankDetails = "Not specified";
+          };
+        };
+      }
     );
-
-    {
-      bookings = bookingsMap;
-    };
+    { bookings = newBookings };
   };
 };

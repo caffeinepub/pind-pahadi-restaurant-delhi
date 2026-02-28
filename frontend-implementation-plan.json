@@ -1,71 +1,74 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix booking submissions not appearing in admin dashboard",
+  "title": "Fix admin dashboard bookings visibility, restore payment details, and add screenshot option",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Fix the booking submission mutation to correctly call the backend actor method and surface errors to the user",
+      "id": "REQ-1",
+      "summary": "Fix admin dashboard so table bookings submitted by users appear correctly without requiring manual refresh or re-login",
       "acceptanceCriteria": [
-        "Submitting the booking form on the Contact/booking page invokes the backend actor's booking submission method without throwing or silently failing.",
-        "If the submission fails, an error message is displayed to the user on the form.",
-        "On successful submission, the user sees a success confirmation."
+        "After a user submits a table booking, it appears in the admin dashboard booking list",
+        "Admin can see all submitted bookings including name, date, time, party size, and contact info",
+        "Bookings persist and are visible after admin logs out and back in"
       ],
       "file_operations": [
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Fix the useSubmitBooking mutation to call actor.submitBooking with the correct arguments (name, phone, guests as bigint, date, time, specialRequest, screenshotFileName as string | null). Ensure the mutation properly handles success/failure responses and returns them to the caller. Remove any silent error swallowing and allow errors to propagate to the UI layer."
+          "description": "Add automatic query invalidation after booking submission to ensure the admin bookings list refreshes immediately. Configure React Query to invalidate the 'bookings' query key when submitBooking mutation succeeds, ensuring real-time visibility of new bookings in the admin dashboard."
         },
         {
           "path": "frontend/src/pages/Contact.tsx",
           "operation": "modify",
-          "description": "Update the booking form submission handler to use the fixed useSubmitBooking mutation, display error messages to the user when submission fails (using the mutation's error state), and show a success confirmation message when submission succeeds. Ensure the form properly converts the guests input to a bigint before passing it to the mutation."
+          "description": "Update the booking submission flow to trigger query invalidation after successful submission. Ensure the form uses the updated useSubmitBooking hook that properly invalidates cached booking data, making new bookings immediately visible in the admin dashboard."
+        },
+        {
+          "path": "frontend/src/pages/Admin.tsx",
+          "operation": "modify",
+          "description": "Ensure the admin dashboard properly displays all booking fields including name, date, time, party size (guests), phone, and special requests. Verify the booking list uses the getAllBookings query and properly handles real-time updates when new bookings are submitted. Add loading and error states for better UX."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Restore payment details section in the booking form on the Contact page, allowing users to view payment information as part of the table booking flow",
+      "acceptanceCriteria": [
+        "Payment details section is visible in the booking form or booking confirmation flow",
+        "Payment details submitted by the user are stored with the booking record",
+        "Admin dashboard displays the payment details alongside each booking entry"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Contact.tsx",
+          "operation": "modify",
+          "description": "Add a payment details section to the booking form displaying the restaurant's payment information (UPI details, bank details, advance payment amount, and accepted payment methods). Wire the PaymentDetails data from the backend interface into the form, collecting any user-provided payment information and passing it to the submitBooking backend capability. The section should be clearly labeled and positioned after the booking details but before the submit button."
+        },
+        {
+          "path": "frontend/src/pages/Admin.tsx",
+          "operation": "modify",
+          "description": "Display payment details for each booking in the admin dashboard. Show the advance amount, payment method, UPI details, and bank details alongside existing booking information (name, date, time, guests, phone). Format the payment information in a readable way, possibly in an expandable section or modal for each booking row."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Fix the bookings query and Admin dashboard to correctly fetch and display all bookings with proper authentication",
+      "summary": "Add screenshot/capture option in the booking confirmation flow allowing users to download a formatted confirmation card",
       "acceptanceCriteria": [
-        "After logging into the admin dashboard, all submitted bookings are fetched and listed in the 'All Reservations' table.",
-        "The 'Total Bookings', 'Total Guests', 'Total Deposits', and 'Today' summary counters reflect actual data from fetched bookings.",
-        "Clicking the Refresh button re-fetches bookings from the backend and updates the list.",
-        "The empty state ('No reservations yet') is only shown when there are genuinely zero bookings stored."
+        "A 'Save / Screenshot' button is displayed on the booking confirmation screen after successful submission",
+        "Clicking the button captures or downloads a formatted confirmation card showing booking details",
+        "The confirmation card includes booking ID, guest name, date, time, party size, and payment details",
+        "The feature works without any third-party external service"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/pages/Contact.tsx",
           "operation": "modify",
-          "description": "Fix the useGetBookings query to call actor.getAllBookings() (not getBookings) using an authenticated actor. Ensure the query is enabled only when the actor is available and uses the correct queryKey ['bookings']. Add proper error handling and typing for the returned Booking array with status field."
+          "description": "Add a booking confirmation view that appears after successful submission, displaying all booking details (booking ID/timestamp, guest name, date, time, party size, phone, special requests, and payment details) in a formatted confirmation card. Include a 'Download Confirmation' button that uses the html2canvas library (or browser-native screenshot APIs) to capture the confirmation card as an image and trigger a download. The confirmation card should be styled as a standalone receipt/ticket with clear typography and the restaurant's branding."
         },
         {
-          "path": "frontend/src/pages/Admin.tsx",
-          "operation": "modify",
-          "description": "Update the Admin dashboard to use the fixed useGetBookings query with proper authentication checks. Wire the Refresh button to invalidate the 'bookings' query key and trigger a refetch. Update the summary counters (Total Bookings, Total Guests, Total Deposits, Today) to calculate from the fetched bookings array. Ensure the empty state only displays when bookings.length === 0. Add authorization checks using the authorization component to verify the user is an admin before showing the dashboard."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Add Confirm and Reject action buttons to each booking row with status badges",
-      "acceptanceCriteria": [
-        "Each booking row in the admin dashboard displays a status badge (Pending, Confirmed, or Rejected).",
-        "An admin can click 'Confirm' on a pending booking to mark it as confirmed; the status updates in the UI immediately.",
-        "An admin can click 'Reject' on a pending booking to mark it as rejected; the status updates in the UI immediately.",
-        "The backend stores and returns the booking status correctly.",
-        "Already-confirmed or already-rejected bookings show disabled or appropriately changed action buttons."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Add useConfirmBooking and useRejectBooking mutations that call actor.confirmBooking(id) and actor.rejectBooking(id) respectively. Both mutations should invalidate the 'bookings' query on success to trigger a refetch and update the UI. Include proper error handling and success callbacks."
-        },
-        {
-          "path": "frontend/src/pages/Admin.tsx",
-          "operation": "modify",
-          "description": "Update the bookings table to display a status badge for each booking showing 'Pending', 'Confirmed', or 'Rejected' based on booking.status. Add 'Confirm' and 'Reject' action buttons to each row that call the useConfirmBooking and useRejectBooking mutations respectively. Disable or hide the action buttons for bookings that are already confirmed or rejected. Ensure the booking ID is correctly passed to the mutations (bookings must be returned with IDs from the backend or tracked by index)."
+          "path": "frontend/src/components/BookingConfirmation.tsx",
+          "operation": "create",
+          "description": "Create a new BookingConfirmation component that renders a printable/downloadable confirmation card with all booking details. Include props for booking data (name, date, time, guests, phone, special requests, payment details) and a unique booking reference. Style the component as a standalone ticket/receipt with clear sections, the restaurant logo/name, and QR code or reference number. Export a captureConfirmation helper function that uses html2canvas to convert the rendered component to an image blob and trigger download."
         }
       ]
     }

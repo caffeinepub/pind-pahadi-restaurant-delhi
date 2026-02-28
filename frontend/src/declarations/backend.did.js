@@ -18,13 +18,19 @@ export const BookingStatus = IDL.Variant({
   'rejected' : IDL.Null,
   'confirmed' : IDL.Null,
 });
+export const PaymentDetails = IDL.Record({
+  'paymentMethod' : IDL.Text,
+  'upiDetails' : IDL.Text,
+  'bankDetails' : IDL.Text,
+  'advanceAmount' : IDL.Nat,
+});
 export const Booking = IDL.Record({
   'status' : BookingStatus,
   'screenshotFileName' : IDL.Opt(IDL.Text),
   'date' : IDL.Text,
   'name' : IDL.Text,
   'time' : IDL.Text,
-  'deposit' : IDL.Nat,
+  'paymentDetails' : PaymentDetails,
   'specialRequest' : IDL.Text,
   'phone' : IDL.Text,
   'guests' : IDL.Nat,
@@ -62,19 +68,7 @@ export const idlService = IDL.Service({
         IDL.Text,
         IDL.Text,
         IDL.Opt(IDL.Text),
-      ],
-      [IDL.Bool],
-      [],
-    ),
-  'submitBookingInternal' : IDL.Func(
-      [
-        IDL.Text,
-        IDL.Text,
-        IDL.Nat,
-        IDL.Text,
-        IDL.Text,
-        IDL.Text,
-        IDL.Opt(IDL.Text),
+        PaymentDetails,
       ],
       [IDL.Bool],
       [],
@@ -94,13 +88,19 @@ export const idlFactory = ({ IDL }) => {
     'rejected' : IDL.Null,
     'confirmed' : IDL.Null,
   });
+  const PaymentDetails = IDL.Record({
+    'paymentMethod' : IDL.Text,
+    'upiDetails' : IDL.Text,
+    'bankDetails' : IDL.Text,
+    'advanceAmount' : IDL.Nat,
+  });
   const Booking = IDL.Record({
     'status' : BookingStatus,
     'screenshotFileName' : IDL.Opt(IDL.Text),
     'date' : IDL.Text,
     'name' : IDL.Text,
     'time' : IDL.Text,
-    'deposit' : IDL.Nat,
+    'paymentDetails' : PaymentDetails,
     'specialRequest' : IDL.Text,
     'phone' : IDL.Text,
     'guests' : IDL.Nat,
@@ -138,19 +138,7 @@ export const idlFactory = ({ IDL }) => {
           IDL.Text,
           IDL.Text,
           IDL.Opt(IDL.Text),
-        ],
-        [IDL.Bool],
-        [],
-      ),
-    'submitBookingInternal' : IDL.Func(
-        [
-          IDL.Text,
-          IDL.Text,
-          IDL.Nat,
-          IDL.Text,
-          IDL.Text,
-          IDL.Text,
-          IDL.Opt(IDL.Text),
+          PaymentDetails,
         ],
         [IDL.Bool],
         [],

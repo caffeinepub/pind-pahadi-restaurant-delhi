@@ -1,34 +1,37 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project involves a table booking system with a booking form and admin dashboard for confirming/rejecting bookings.",
-  "architectural_notes": [],
+  "summary": "Restaurant/service booking app with admin dashboard, table booking, payment details, and screenshot functionality.",
+  "architectural_notes": [
+    "App includes an admin dashboard that should display table bookings",
+    "Payment details section is a required feature"
+  ],
   "known_issues": [
-    "Submitted table booking form entries are not appearing in the admin dashboard, preventing admins from confirming or rejecting bookings."
+    "Table bookings submitted by users are not appearing in the admin dashboard"
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-fix-the-usesubmitbooking-mutation-in-frontend-src-hooks-usequeries-ts-to-call-the-correct-backend-actor-method-with-the-correct-argument-shape-for-submitting-a-booking-and-ensure-errors-are-surfaced-to-the-user-rather-than-silently-swallowed",
-      "title": "Fix the `useSubmitBooking` mutation in `frontend/src/hooks/useQueries.ts` to call the correct backend actor method with the correct argument shape for submitting a booking, and ensure errors are surfaced to the user rather than silently swallowed.",
+      "id": "feature-fix-the-admin-dashboard-so-that-table-bookings-submitted-by-users-appear-correctly-ensure-that-after-a-user-submits-a-booking-via-the-contact-booking-page-it-is-retrievable-and-displayed-in-the-admin-dashboard-booking-list-without-requiring-a-manual-refresh-or-re-login",
+      "title": "Fix the admin dashboard so that table bookings submitted by users appear correctly. Ensure that after a user submits a booking via the Contact/booking page, it is retrievable and displayed in the Admin dashboard booking list without requiring a manual refresh or re-login.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-restore-the-payment-details-section-in-the-booking-form-on-the-contact-page-the-section-should-allow-users-to-enter-or-view-payment-related-information-e-g-advance-payment-amount-payment-method-upi-bank-details-for-the-restaurant-as-part-of-the-table-booking-flow",
+      "title": "Restore the payment details section in the booking form on the Contact page. The section should allow users to enter or view payment-related information (e.g., advance payment amount, payment method, UPI/bank details for the restaurant) as part of the table booking flow.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-fix-the-usegetbookings-query-in-frontend-src-hooks-usequeries-ts-and-the-admin-dashboard-page-frontend-src-pages-admin-tsx-to-correctly-fetch-all-bookings-from-the-backend-actor-and-display-them-in-the-reservations-table-the-query-must-use-an-authenticated-actor-post-internet-identity-login-and-invalidate-refetch-when-the-refresh-button-is-clicked",
-      "title": "Fix the `useGetBookings` query in `frontend/src/hooks/useQueries.ts` and the Admin dashboard page (`frontend/src/pages/Admin.tsx`) to correctly fetch all bookings from the backend actor and display them in the reservations table. The query must use an authenticated actor (post Internet Identity login) and invalidate/refetch when the Refresh button is clicked.",
+      "id": "feature-add-a-screenshot-capture-option-in-the-booking-confirmation-flow-after-a-user-successfully-submits-a-booking-provide-a-button-that-allows-them-to-take-or-download-a-screenshot-of-their-booking-confirmation-details-booking-id-name-date-time-party-size-payment-info-as-an-image-or-printable-view",
+      "title": "Add a screenshot/capture option in the booking confirmation flow. After a user successfully submits a booking, provide a button that allows them to take or download a screenshot of their booking confirmation details (booking ID, name, date, time, party size, payment info) as an image or printable view.",
       "reqIds": [
         "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-confirm-valid-and-reject-invalid-action-buttons-to-each-booking-row-in-the-admin-dashboard-frontend-src-pages-admin-tsx-these-buttons-should-call-the-corresponding-backend-methods-to-update-a-booking-s-status-to-confirmed-or-rejected-the-booking-row-should-visually-reflect-the-current-status-e-g-a-status-badge-pending-confirmed-rejected",
-      "title": "Add 'Confirm' (valid) and 'Reject' (invalid) action buttons to each booking row in the admin dashboard (`frontend/src/pages/Admin.tsx`). These buttons should call the corresponding backend methods to update a booking's status to confirmed or rejected. The booking row should visually reflect the current status (e.g., a status badge: Pending / Confirmed / Rejected).",
-      "reqIds": [
-        "REQ-4"
       ],
       "version": 1
     }
@@ -36,15 +39,25 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Fix the backend `bookTable` function to correctly persist submitted bookings into stable storage so that entries are reliably saved and retrievable across calls. Audit the booking submission logic in `backend/main.mo` for any issues such as using a non-stable variable, failing silently, or not appending to the correct data structure.",
-      "reqIds": [
-        "REQ-1"
-      ],
+      "summary": "Fix table bookings not appearing in admin dashboard",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Restore payment details section that was removed",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Add screenshot option/functionality",
+      "reqIds": [],
       "status": "pending"
     }
   ],
   "gameProjectType": "none",
-  "projectName": "Pind Pahadi Restaurant",
+  "projectName": "Pind Pahadi Admin",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

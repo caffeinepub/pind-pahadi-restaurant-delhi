@@ -16,7 +16,7 @@ export interface Booking {
   'date' : string,
   'name' : string,
   'time' : string,
-  'deposit' : bigint,
+  'paymentDetails' : PaymentDetails,
   'specialRequest' : string,
   'phone' : string,
   'guests' : bigint,
@@ -24,6 +24,12 @@ export interface Booking {
 export type BookingStatus = { 'pending' : null } |
   { 'rejected' : null } |
   { 'confirmed' : null };
+export interface PaymentDetails {
+  'paymentMethod' : string,
+  'upiDetails' : string,
+  'bankDetails' : string,
+  'advanceAmount' : bigint,
+}
 export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
@@ -43,11 +49,16 @@ export interface _SERVICE {
   'rejectBooking' : ActorMethod<[bigint], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'submitBooking' : ActorMethod<
-    [string, string, bigint, string, string, string, [] | [string]],
-    boolean
-  >,
-  'submitBookingInternal' : ActorMethod<
-    [string, string, bigint, string, string, string, [] | [string]],
+    [
+      string,
+      string,
+      bigint,
+      string,
+      string,
+      string,
+      [] | [string],
+      PaymentDetails,
+    ],
     boolean
   >,
 }

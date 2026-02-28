@@ -2,10 +2,31 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-usesubmitbooking-mutation-in-frontend-src-hooks-usequeries-ts-to-call-the-correct-backend-actor-method-with-the-correct-argument-shape-for-submitting-a-booking-and-ensure-errors-are-surfaced-to-the-user-rather-than-silently-swallowed",
-      "featureTitle": "Fix the `useSubmitBooking` mutation in `frontend/src/hooks/useQueries.ts` to call the correct backend actor method with the correct argument shape for submitting a booking, and ensure errors are surfaced to the user rather than silently swallowed.",
+      "featureId": "feature-fix-the-admin-dashboard-so-that-table-bookings-submitted-by-users-appear-correctly-ensure-that-after-a-user-submits-a-booking-via-the-contact-booking-page-it-is-retrievable-and-displayed-in-the-admin-dashboard-booking-list-without-requiring-a-manual-refresh-or-re-login",
+      "featureTitle": "Fix the admin dashboard so that table bookings submitted by users appear correctly. Ensure that after a user submits a booking via the Contact/booking page, it is retrievable and displayed in the Admin dashboard booking list without requiring a manual refresh or re-login.",
       "files": [
         "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/Admin.tsx",
+        "frontend/src/pages/Contact.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-restore-the-payment-details-section-in-the-booking-form-on-the-contact-page-the-section-should-allow-users-to-enter-or-view-payment-related-information-e-g-advance-payment-amount-payment-method-upi-bank-details-for-the-restaurant-as-part-of-the-table-booking-flow",
+      "featureTitle": "Restore the payment details section in the booking form on the Contact page. The section should allow users to enter or view payment-related information (e.g., advance payment amount, payment method, UPI/bank details for the restaurant) as part of the table booking flow.",
+      "files": [
+        "frontend/src/pages/Admin.tsx",
         "frontend/src/pages/Contact.tsx"
       ],
       "components": [
@@ -22,11 +43,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-fix-the-usegetbookings-query-in-frontend-src-hooks-usequeries-ts-and-the-admin-dashboard-page-frontend-src-pages-admin-tsx-to-correctly-fetch-all-bookings-from-the-backend-actor-and-display-them-in-the-reservations-table-the-query-must-use-an-authenticated-actor-post-internet-identity-login-and-invalidate-refetch-when-the-refresh-button-is-clicked",
-      "featureTitle": "Fix the `useGetBookings` query in `frontend/src/hooks/useQueries.ts` and the Admin dashboard page (`frontend/src/pages/Admin.tsx`) to correctly fetch all bookings from the backend actor and display them in the reservations table. The query must use an authenticated actor (post Internet Identity login) and invalidate/refetch when the Refresh button is clicked.",
+      "featureId": "feature-add-a-screenshot-capture-option-in-the-booking-confirmation-flow-after-a-user-successfully-submits-a-booking-provide-a-button-that-allows-them-to-take-or-download-a-screenshot-of-their-booking-confirmation-details-booking-id-name-date-time-party-size-payment-info-as-an-image-or-printable-view",
+      "featureTitle": "Add a screenshot/capture option in the booking confirmation flow. After a user successfully submits a booking, provide a button that allows them to take or download a screenshot of their booking confirmation details (booking ID, name, date, time, party size, payment info) as an image or printable view.",
       "files": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/Admin.tsx"
+        "frontend/src/components/BookingConfirmation.tsx",
+        "frontend/src/pages/Contact.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -38,26 +59,6 @@
       ],
       "testIds": [
         "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-confirm-valid-and-reject-invalid-action-buttons-to-each-booking-row-in-the-admin-dashboard-frontend-src-pages-admin-tsx-these-buttons-should-call-the-corresponding-backend-methods-to-update-a-booking-s-status-to-confirmed-or-rejected-the-booking-row-should-visually-reflect-the-current-status-e-g-a-status-badge-pending-confirmed-rejected",
-      "featureTitle": "Add 'Confirm' (valid) and 'Reject' (invalid) action buttons to each booking row in the admin dashboard (`frontend/src/pages/Admin.tsx`). These buttons should call the corresponding backend methods to update a booking's status to confirmed or rejected. The booking row should visually reflect the current status (e.g., a status badge: Pending / Confirmed / Rejected).",
-      "files": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/Admin.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
       ],
       "confidence": "high"
     }

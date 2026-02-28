@@ -7,13 +7,19 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
+export interface PaymentDetails {
+    paymentMethod: string;
+    upiDetails: string;
+    bankDetails: string;
+    advanceAmount: bigint;
+}
 export interface Booking {
     status: BookingStatus;
     screenshotFileName?: string;
     date: string;
     name: string;
     time: string;
-    deposit: bigint;
+    paymentDetails: PaymentDetails;
     specialRequest: string;
     phone: string;
     guests: bigint;
@@ -44,6 +50,5 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     rejectBooking(id: bigint): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
-    submitBooking(name: string, phone: string, guests: bigint, date: string, time: string, specialRequest: string, screenshotFileName: string | null): Promise<boolean>;
-    submitBookingInternal(name: string, phone: string, guests: bigint, date: string, time: string, specialRequest: string, screenshotFileName: string | null): Promise<boolean>;
+    submitBooking(name: string, phone: string, guests: bigint, date: string, time: string, specialRequest: string, screenshotFileName: string | null, paymentDetails: PaymentDetails): Promise<boolean>;
 }

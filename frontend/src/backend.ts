@@ -89,13 +89,19 @@ export class ExternalBlob {
         return this;
     }
 }
+export interface PaymentDetails {
+    paymentMethod: string;
+    upiDetails: string;
+    bankDetails: string;
+    advanceAmount: bigint;
+}
 export interface Booking {
     status: BookingStatus;
     screenshotFileName?: string;
     date: string;
     name: string;
     time: string;
-    deposit: bigint;
+    paymentDetails: PaymentDetails;
     specialRequest: string;
     phone: string;
     guests: bigint;
@@ -127,10 +133,9 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     rejectBooking(id: bigint): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
-    submitBooking(name: string, phone: string, guests: bigint, date: string, time: string, specialRequest: string, screenshotFileName: string | null): Promise<boolean>;
-    submitBookingInternal(name: string, phone: string, guests: bigint, date: string, time: string, specialRequest: string, screenshotFileName: string | null): Promise<boolean>;
+    submitBooking(name: string, phone: string, guests: bigint, date: string, time: string, specialRequest: string, screenshotFileName: string | null, paymentDetails: PaymentDetails): Promise<boolean>;
 }
-import type { Booking as _Booking, BookingStatus as _BookingStatus, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
+import type { Booking as _Booking, BookingStatus as _BookingStatus, PaymentDetails as _PaymentDetails, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _initializeAccessControlWithSecret(arg0: string): Promise<void> {
@@ -315,31 +320,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async submitBooking(arg0: string, arg1: string, arg2: bigint, arg3: string, arg4: string, arg5: string, arg6: string | null): Promise<boolean> {
+    async submitBooking(arg0: string, arg1: string, arg2: bigint, arg3: string, arg4: string, arg5: string, arg6: string | null, arg7: PaymentDetails): Promise<boolean> {
         if (this.processError) {
             try {
-                const result = await this.actor.submitBooking(arg0, arg1, arg2, arg3, arg4, arg5, to_candid_opt_n14(this._uploadFile, this._downloadFile, arg6));
+                const result = await this.actor.submitBooking(arg0, arg1, arg2, arg3, arg4, arg5, to_candid_opt_n14(this._uploadFile, this._downloadFile, arg6), arg7);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.submitBooking(arg0, arg1, arg2, arg3, arg4, arg5, to_candid_opt_n14(this._uploadFile, this._downloadFile, arg6));
-            return result;
-        }
-    }
-    async submitBookingInternal(arg0: string, arg1: string, arg2: bigint, arg3: string, arg4: string, arg5: string, arg6: string | null): Promise<boolean> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.submitBookingInternal(arg0, arg1, arg2, arg3, arg4, arg5, to_candid_opt_n14(this._uploadFile, this._downloadFile, arg6));
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.submitBookingInternal(arg0, arg1, arg2, arg3, arg4, arg5, to_candid_opt_n14(this._uploadFile, this._downloadFile, arg6));
+            const result = await this.actor.submitBooking(arg0, arg1, arg2, arg3, arg4, arg5, to_candid_opt_n14(this._uploadFile, this._downloadFile, arg6), arg7);
             return result;
         }
     }
@@ -365,7 +356,7 @@ function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint
     date: string;
     name: string;
     time: string;
-    deposit: bigint;
+    paymentDetails: _PaymentDetails;
     specialRequest: string;
     phone: string;
     guests: bigint;
@@ -375,7 +366,7 @@ function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint
     date: string;
     name: string;
     time: string;
-    deposit: bigint;
+    paymentDetails: PaymentDetails;
     specialRequest: string;
     phone: string;
     guests: bigint;
@@ -386,7 +377,7 @@ function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint
         date: value.date,
         name: value.name,
         time: value.time,
-        deposit: value.deposit,
+        paymentDetails: value.paymentDetails,
         specialRequest: value.specialRequest,
         phone: value.phone,
         guests: value.guests

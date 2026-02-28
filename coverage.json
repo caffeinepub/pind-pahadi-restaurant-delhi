@@ -1,59 +1,54 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-28T03:19:27.398Z",
+  "generatedAt": "2026-02-28T03:51:00.332Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
+    "total": 3,
     "implemented": 3,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Fix the backend `bookTable` function to correctly persist submitted bookings into stable storage so that entries are reliably saved and retrievable across calls. Audit the booking submission logic in `backend/main.mo` for any issues such as using a non-stable variable, failing silently, or not appending to the correct data structure.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-2",
-        "summary": "Fix the `useSubmitBooking` mutation in `frontend/src/hooks/useQueries.ts` to call the correct backend actor method with the correct argument shape for submitting a booking, and ensure errors are surfaced to the user rather than silently swallowed.",
+        "summary": "Fix the admin dashboard so that table bookings submitted by users appear correctly. Ensure that after a user submits a booking via the Contact/booking page, it is retrievable and displayed in the Admin dashboard booking list without requiring a manual refresh or re-login.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/Contact.tsx"
+          "frontend/src/pages/Contact.tsx",
+          "frontend/src/pages/Admin.tsx"
         ],
         "matchedFiles": [
           "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/Contact.tsx"
+          "frontend/src/pages/Contact.tsx",
+          "frontend/src/pages/Admin.tsx"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Restore the payment details section in the booking form on the Contact page. The section should allow users to enter or view payment-related information (e.g., advance payment amount, payment method, UPI/bank details for the restaurant) as part of the table booking flow.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/Contact.tsx",
+          "frontend/src/pages/Admin.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/Contact.tsx",
+          "frontend/src/pages/Admin.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Fix the `useGetBookings` query in `frontend/src/hooks/useQueries.ts` and the Admin dashboard page (`frontend/src/pages/Admin.tsx`) to correctly fetch all bookings from the backend actor and display them in the reservations table. The query must use an authenticated actor (post Internet Identity login) and invalidate/refetch when the Refresh button is clicked.",
+        "summary": "Add a screenshot/capture option in the booking confirmation flow. After a user successfully submits a booking, provide a button that allows them to take or download a screenshot of their booking confirmation details (booking ID, name, date, time, party size, payment info) as an image or printable view.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/Admin.tsx"
+          "frontend/src/pages/Contact.tsx",
+          "frontend/src/components/BookingConfirmation.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/Admin.tsx"
-        ]
-      },
-      {
-        "id": "REQ-4",
-        "summary": "Add 'Confirm' (valid) and 'Reject' (invalid) action buttons to each booking row in the admin dashboard (`frontend/src/pages/Admin.tsx`). These buttons should call the corresponding backend methods to update a booking's status to confirmed or rejected. The booking row should visually reflect the current status (e.g., a status badge: Pending / Confirmed / Rejected).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/Admin.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/Admin.tsx"
+          "frontend/src/pages/Contact.tsx",
+          "frontend/src/components/BookingConfirmation.tsx"
         ]
       }
     ]
@@ -67,6 +62,7 @@
     "frontend-implementation-plan.json",
     "frontend/src/backend.d.ts",
     "frontend/src/backend.ts",
+    "frontend/src/components/BookingConfirmation.tsx",
     "frontend/src/declarations/backend.did.d.ts",
     "frontend/src/declarations/backend.did.js",
     "frontend/src/hooks/useQueries.ts",
