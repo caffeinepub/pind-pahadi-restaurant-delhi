@@ -1,11 +1,12 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
 import type { Booking } from '../backend';
 
 export function useSubmitBooking() {
   const { actor, isFetching: actorFetching } = useActor();
+  const queryClient = useQueryClient();
 
-  return useMutation({
+  const mutation = useMutation({
     mutationFn: async (data: {
       name: string;
       phone: string;
@@ -15,36 +16,46 @@ export function useSubmitBooking() {
       specialRequest: string;
       screenshotFileName?: string | null;
     }) => {
-      // If actor is still initializing, wait and retry
-      if (!actor) {
-        throw new Error('Connection not ready. Please wait a moment and try again.');
+      if (!actor) throw new Error('Connection not ready. Please wait a moment and try again.');
+
+      let lastError: Error | null = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          const result = await actor.submitBooking(
+            data.name,
+            data.phone,
+            BigInt(data.guests),
+            data.date,
+            data.time,
+            data.specialRequest,
+            data.screenshotFileName ?? null
+          );
+          return result;
+        } catch (err: unknown) {
+          lastError = err instanceof Error ? err : new Error(String(err));
+          const msg = lastError.message.toLowerCase();
+          if (msg.includes('connection not ready') || msg.includes('actor') || msg.includes('network')) {
+            await new Promise((res) => setTimeout(res, 1500 * (attempt + 1)));
+            continue;
+          }
+          throw lastError;
+        }
       }
-      const result = await actor.submitBooking(
-        data.name,
-        data.phone,
-        BigInt(data.guests),
-        data.date,
-        data.time,
-        data.specialRequest,
-        data.screenshotFileName ?? null,
-      );
-      return result;
+      throw lastError ?? new Error('Failed after retries');
     },
-    retry: (failureCount, error) => {
-      // Retry up to 3 times if actor is not ready yet
-      const message = error instanceof Error ? error.message : '';
-      if (message.includes('Connection not ready') && failureCount < 3) {
-        return true;
-      }
-      return false;
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['allBookings'] });
     },
-    retryDelay: 1500,
-    meta: { actorFetching },
   });
+
+  return {
+    ...mutation,
+    actorFetching,
+  };
 }
 
-export function useGetAllBookings(enabled: boolean) {
-  const { actor, isFetching } = useActor();
+export function useGetAllBookings(enabled = true) {
+  const { actor, isFetching: actorFetching } = useActor();
 
   return useQuery<Booking[]>({
     queryKey: ['allBookings'],
@@ -52,7 +63,6 @@ export function useGetAllBookings(enabled: boolean) {
       if (!actor) return [];
       return actor.getAllBookings();
     },
-    enabled: !!actor && !isFetching && enabled,
-    retry: false,
+    enabled: enabled && !!actor && !actorFetching,
   });
 }

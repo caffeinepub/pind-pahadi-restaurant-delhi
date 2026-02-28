@@ -1,50 +1,52 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix cross-device table reservation and update canonical URL",
+  "title": "Fix deployment and backend connection issues",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Update all references to the app's public URL from 'pindpahadirestrurent.caffeine.xyz' to 'pindpahadirestrurent.caffein.xyz' (single 'e' in 'caffein')",
+      "summary": "Fix the backend canister connection so that the booking form on the Contact page successfully connects to the backend without showing connection errors",
       "acceptanceCriteria": [
-        "The canonical URL in index.html points to https://pindpahadirestrurent.caffein.xyz",
-        "Open Graph og:url meta tag uses the new domain",
-        "JSON-LD Restaurant schema URL uses the new domain",
-        "No remaining references to the old 'caffeine.xyz' domain exist in the frontend source files"
+        "The booking form on the Contact page loads without any connection error messages",
+        "Submitting the booking form successfully sends data to the backend canister",
+        "The backend actor initializes correctly on page load without requiring manual refresh"
       ],
       "file_operations": [
         {
-          "path": "frontend/index.html",
+          "path": "frontend/src/hooks/useActor.ts",
           "operation": "modify",
-          "description": "Update the canonical link href from 'https://pindpahadirestrurent.caffeine.xyz/' to 'https://pindpahadirestrurent.caffein.xyz/'. Update the Open Graph og:url meta tag property content to use the new domain. Update the JSON-LD Restaurant schema's url field to 'https://pindpahadirestrurent.caffein.xyz'. Verify all three locations are updated with the corrected domain spelling (single 'e' in 'caffein')."
+          "description": "Review and enhance the backend actor initialization logic to ensure proper connection establishment. Add connection state tracking and improve error handling during actor creation. Ensure the actor is fully initialized before being made available to consuming components."
         },
         {
-          "path": "frontend/src/components/Footer.tsx",
+          "path": "frontend/src/pages/Contact.tsx",
           "operation": "modify",
-          "description": "Update any hardcoded domain references from 'pindpahadirestrurent.caffeine.xyz' to 'pindpahadirestrurent.caffein.xyz' if present in the footer attribution link or other footer content."
+          "description": "Update the Contact page to properly handle backend connection states. Ensure the booking form waits for the actor to be fully initialized before allowing submissions. Display appropriate connection status feedback to users during the initialization phase."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Fix the table reservation feature to work correctly from any device by ensuring anonymous actor initialization is device-independent",
+      "summary": "Add retry logic and a user-friendly loading state to the booking form so that if the backend canister takes a moment to warm up after deployment, the form gracefully retries the connection and shows a friendly loading indicator instead of an error",
       "acceptanceCriteria": [
-        "A user on any device (mobile or desktop, any browser) can open the Contact/Book Table page and submit a reservation without errors",
-        "The booking submission does not depend on any device-local session state or previously cached actor",
-        "Submitted bookings from any device appear correctly in the admin dashboard",
-        "The anonymous actor is correctly initialized for unauthenticated booking submissions on fresh devices",
-        "Error messages, if any, are informative and actionable for the user"
+        "The booking form shows a loading spinner or 'Connecting...' message while the backend actor is initializing",
+        "The form automatically retries connecting to the backend at least 3 times before showing an error",
+        "Error messages are user-friendly and suggest refreshing if the connection ultimately fails"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/Contact.tsx",
+          "path": "frontend/src/hooks/useActor.ts",
           "operation": "modify",
-          "description": "Review the booking form submission flow to ensure it properly handles cases where the actor may not be immediately available on fresh devices. Add defensive checks for actor availability before calling submitBooking. Ensure the form validation and error states provide clear feedback if the backend connection fails. Add loading states during actor initialization if needed. Verify that the screenshot upload and all form fields work correctly across devices without relying on device-specific cached state."
+          "description": "Implement retry logic with exponential backoff for actor initialization. Add at least 3 retry attempts with appropriate delays. Expose connection state (connecting, connected, retrying, failed) to consuming components. Track retry count and provide detailed connection status information."
         },
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Review the useSubmitBooking mutation hook to ensure it properly waits for the actor to be available before attempting to call submitBooking. Add error handling that distinguishes between actor initialization failures and booking submission failures. Ensure the mutation does not depend on any device-local state or cached identity that may not exist on a fresh device. Verify the enabled condition properly reflects actor availability. Add retry logic if appropriate for transient connection issues."
+          "description": "Enhance the useSubmitBooking mutation hook to handle connection retries gracefully. Ensure the mutation waits for actor availability and includes retry logic for transient connection failures. Update error handling to provide user-friendly messages distinguishing between connection issues and submission errors."
+        },
+        {
+          "path": "frontend/src/pages/Contact.tsx",
+          "operation": "modify",
+          "description": "Add a user-friendly loading state UI component that displays during backend connection initialization. Show a 'Connecting to server...' message with a spinner while the actor is initializing or retrying. Display retry progress if applicable. Provide a friendly error message with refresh instructions if connection ultimately fails after all retry attempts. Disable form submission during connection phase."
         }
       ]
     }

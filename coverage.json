@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-27T19:05:35.644Z",
+  "generatedAt": "2026-02-28T03:02:42.660Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -12,42 +12,37 @@
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Update all references to the app's public URL from 'pindpahadirestrurent.caffeine.xyz' to 'pindpahadirestrurent.caffein.xyz' (note: single 'e' in 'caffein'). This includes the canonical URL meta tag in frontend/index.html, the Open Graph URL, the JSON-LD Restaurant schema URL, and any hardcoded domain references across the codebase.",
+        "summary": "Fix the backend canister connection so that the booking form on the Contact page successfully connects to the backend without showing 'Still connecting to the server. Please wait a moment and try again.' errors.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/index.html",
-          "frontend/src/components/Footer.tsx"
+          "frontend/src/hooks/useActor.ts",
+          "frontend/src/pages/Contact.tsx"
         ],
         "matchedFiles": [
-          "frontend/index.html"
+          "frontend/src/pages/Contact.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Fix the table reservation (booking) feature so that it works correctly when accessed from any device, not just the device on which the booking was originally initiated. Investigate and resolve any issues in the booking submission flow in frontend/src/pages/Contact.tsx and frontend/src/hooks/useQueries.ts that could cause failures on other devices — such as device-specific actor initialization, anonymous identity mismatches, or session/actor not being properly set up for unauthenticated users on a fresh device.",
+        "summary": "Add retry logic and a user-friendly loading state to the booking form so that if the backend canister takes a moment to warm up after deployment, the form gracefully retries the connection and shows a friendly loading indicator instead of an error.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/Contact.tsx",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/hooks/useActor.ts",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/Contact.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/Contact.tsx",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/Contact.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/index.html",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
     "frontend/src/hooks/useQueries.ts",
     "frontend/src/pages/Contact.tsx",
     "project_state.json",

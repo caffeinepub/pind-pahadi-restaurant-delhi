@@ -1,10 +1,10 @@
 import { useState, useRef } from 'react';
-import { Phone, MapPin, Clock, CheckCircle, Loader2, Navigation, Info, Copy, Check, ImageUp, Wifi } from 'lucide-react';
+import { Phone, MapPin, Clock, CheckCircle, Loader2, Navigation, Copy, Check, ImageUp, Wifi } from 'lucide-react';
 import { useSubmitBooking } from '../hooks/useQueries';
 import { useActor } from '../hooks/useActor';
 
-const PHONE = '+91-9999999999';
-const PHONE_DISPLAY = '+91-99999 99999';
+const PHONE = '+91-9891142585';
+const PHONE_DISPLAY = '+91-98911 42585';
 const ADDRESS = 'Gate No 2, Metro Station, Nangli, Najafgarh, New Delhi, Delhi 110043';
 const MAPS_URL = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(ADDRESS)}`;
 const MAPS_EMBED_URL = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3503.0!2d76.9798!3d28.6092!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjjCsDM2JzMzLjEiTiA3NsKwNTgnNDcuMyJF!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin`;
@@ -36,6 +36,8 @@ export default function Contact() {
   const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
   const [upiCopied, setUpiCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // useActor only exposes { actor, isFetching }
   const { actor, isFetching: actorFetching } = useActor();
   const { mutate: submitBooking, isPending, isSuccess, isError, error: mutationError } = useSubmitBooking();
 
@@ -83,7 +85,6 @@ export default function Contact() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    if (!isActorReady) return;
     submitBooking({
       name: form.name,
       phone: form.phone,
@@ -202,7 +203,7 @@ export default function Contact() {
                 <>
                   <h2 className="text-2xl font-bold text-brand-brown mb-6">Reserve Your Table</h2>
 
-                  {/* Actor loading indicator */}
+                  {/* Actor connecting state — shown while actor is initializing */}
                   {actorFetching && (
                     <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-700 flex items-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
@@ -210,9 +211,11 @@ export default function Contact() {
                     </div>
                   )}
 
+                  {/* Submission error */}
                   {isError && (
-                    <div className="mb-4 p-3 bg-red-50 border border-brand-red/30 rounded-xl text-sm text-brand-red">
-                      {errorMessage}
+                    <div className="mb-4 p-3 bg-red-50 border border-brand-red/30 rounded-xl text-sm text-brand-red flex items-center gap-2">
+                      <Wifi className="w-4 h-4 flex-shrink-0" />
+                      <span>{errorMessage}</span>
                     </div>
                   )}
 
@@ -306,131 +309,105 @@ export default function Contact() {
                     {/* Special Request */}
                     <div>
                       <label className="block text-sm font-semibold text-brand-brown mb-1.5">
-                        Special Request <span className="text-muted-foreground font-normal">(optional)</span>
+                        Special Request <span className="text-brand-brown/40 font-normal">(optional)</span>
                       </label>
                       <textarea
                         name="specialRequest"
                         value={form.specialRequest}
                         onChange={handleChange}
-                        placeholder="Any dietary requirements, occasion, or special arrangements..."
+                        placeholder="Any dietary requirements, occasion, seating preference…"
                         rows={3}
                         className="w-full px-4 py-3 rounded-xl border border-border bg-white text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-brand-brown/30 focus:border-brand-brown resize-none"
                       />
                     </div>
 
-                    {/* Deposit Policy Notice */}
-                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                      <div className="flex items-start gap-2.5">
-                        <Info className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                        <div className="text-xs text-amber-800 leading-relaxed space-y-1">
-                          <p className="font-bold text-amber-900">
-                            Booking Deposit: ₹{depositAmount} ({guestCount} {guestCount === 1 ? 'guest' : 'guests'} × ₹{DEPOSIT_PER_GUEST})
+                    {/* UPI Payment Section */}
+                    <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-3">
+                      <div className="flex items-start gap-2">
+                        <span className="text-lg">💰</span>
+                        <div>
+                          <p className="font-bold text-brand-brown text-sm">
+                            Booking Deposit Required: ₹{depositAmount}
                           </p>
-                          <p>
-                            A deposit of <strong>₹{DEPOSIT_PER_GUEST} per guest</strong> is collected at the time of arrival. This amount is <strong>fully deducted from your final bill</strong>.
-                          </p>
-                          <p>
-                            In case of cancellation, only <strong>50% of the deposit is refundable</strong>.
+                          <p className="text-xs text-brand-brown/70 mt-0.5">
+                            ₹{DEPOSIT_PER_GUEST} × {guestCount} {guestCount === 1 ? 'guest' : 'guests'} — deducted from your final bill.
                           </p>
                         </div>
                       </div>
-                    </div>
 
-                    {/* UPI Payment Notice */}
-                    <div className="bg-brand-cream border-2 border-brand-mustard/50 rounded-xl p-4">
-                      <div className="flex items-start gap-2.5">
-                        <span className="text-lg flex-shrink-0 mt-0.5">💳</span>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-bold text-brand-brown text-sm mb-1">
-                            Pay Deposit via UPI
-                          </p>
-                          <p className="text-xs text-brand-brown/70 leading-relaxed mb-3">
-                            Please pay <strong>₹{depositAmount}</strong> ({guestCount} {guestCount === 1 ? 'guest' : 'guests'} × ₹{DEPOSIT_PER_GUEST}) to the UPI ID below before submitting your booking. Then upload the payment screenshot.
-                          </p>
-                          <div className="flex items-center gap-2 bg-white border border-brand-mustard/40 rounded-lg px-3 py-2">
-                            <span className="text-xs text-brand-brown/50 font-medium flex-shrink-0">UPI ID:</span>
-                            <code className="text-sm font-bold text-brand-brown flex-1 select-all break-all">
-                              {UPI_ID}
-                            </code>
-                            <button
-                              type="button"
-                              onClick={handleCopyUpi}
-                              className="flex-shrink-0 p-1 rounded-md hover:bg-brand-mustard/20 transition-colors text-brand-brown/60 hover:text-brand-brown"
-                              title="Copy UPI ID"
-                            >
-                              {upiCopied ? (
-                                <Check className="w-4 h-4 text-green-600" />
-                              ) : (
-                                <Copy className="w-4 h-4" />
-                              )}
-                            </button>
-                          </div>
-                          {upiCopied && (
-                            <p className="text-xs text-green-600 mt-1 font-medium">✓ UPI ID copied!</p>
-                          )}
+                      <div className="bg-white rounded-xl p-3 border border-amber-200">
+                        <p className="text-xs font-semibold text-brand-brown mb-1">Pay via UPI:</p>
+                        <div className="flex items-center gap-2">
+                          <code className="text-sm font-mono text-brand-brown flex-1 break-all">{UPI_ID}</code>
+                          <button
+                            type="button"
+                            onClick={handleCopyUpi}
+                            className="flex-shrink-0 p-1.5 rounded-lg bg-brand-mustard/20 hover:bg-brand-mustard/40 transition-colors"
+                            title="Copy UPI ID"
+                          >
+                            {upiCopied ? (
+                              <Check className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <Copy className="w-4 h-4 text-brand-brown" />
+                            )}
+                          </button>
                         </div>
                       </div>
+
+                      <p className="text-xs text-brand-brown/60 leading-relaxed">
+                        After paying, upload the screenshot below. 50% refundable on cancellation.
+                      </p>
                     </div>
 
                     {/* Screenshot Upload */}
                     <div>
                       <label className="block text-sm font-semibold text-brand-brown mb-1.5">
-                        Upload Payment Screenshot <span className="text-brand-red">*</span>
+                        UPI Payment Screenshot <span className="text-brand-red">*</span>
                       </label>
                       <div
-                        className={`relative w-full rounded-xl border-2 border-dashed transition-colors cursor-pointer ${
+                        onClick={() => fileInputRef.current?.click()}
+                        className={`w-full px-4 py-4 rounded-xl border-2 border-dashed cursor-pointer transition-colors flex flex-col items-center gap-2 ${
                           errors.screenshot
                             ? 'border-brand-red bg-red-50'
                             : screenshotFile
                             ? 'border-green-400 bg-green-50'
-                            : 'border-brand-mustard/50 bg-brand-cream/40 hover:border-brand-mustard hover:bg-brand-cream/70'
+                            : 'border-border hover:border-brand-brown/50 bg-white'
                         }`}
-                        onClick={() => fileInputRef.current?.click()}
                       >
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          accept="image/jpeg,image/png,image/webp"
-                          onChange={handleFileChange}
-                          className="sr-only"
-                        />
-                        <div className="flex flex-col items-center justify-center py-5 px-4 text-center">
-                          {screenshotFile ? (
-                            <>
-                              <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mb-2">
-                                <Check className="w-5 h-5 text-green-600" />
-                              </div>
-                              <p className="text-sm font-semibold text-green-700">{screenshotFile.name}</p>
-                              <p className="text-xs text-green-600 mt-0.5">
-                                {(screenshotFile.size / 1024).toFixed(0)} KB — tap to change
-                              </p>
-                            </>
-                          ) : (
-                            <>
-                              <div className="w-10 h-10 rounded-full bg-brand-mustard/20 flex items-center justify-center mb-2">
-                                <ImageUp className="w-5 h-5 text-brand-brown" />
-                              </div>
-                              <p className="text-sm font-semibold text-brand-brown">Tap to upload screenshot</p>
-                              <p className="text-xs text-brand-brown/50 mt-0.5">JPEG, PNG or WebP</p>
-                            </>
-                          )}
-                        </div>
+                        {screenshotFile ? (
+                          <>
+                            <Check className="w-6 h-6 text-green-600" />
+                            <p className="text-sm text-green-700 font-medium text-center break-all">{screenshotFile.name}</p>
+                            <p className="text-xs text-green-600">Tap to change</p>
+                          </>
+                        ) : (
+                          <>
+                            <ImageUp className="w-6 h-6 text-brand-brown/50" />
+                            <p className="text-sm text-brand-brown/60">Tap to upload payment screenshot</p>
+                            <p className="text-xs text-brand-brown/40">JPG, PNG, PDF accepted</p>
+                          </>
+                        )}
                       </div>
-                      {errors.screenshot && (
-                        <p className="text-xs text-brand-red mt-1">{errors.screenshot}</p>
-                      )}
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                      {errors.screenshot && <p className="text-xs text-brand-red mt-1">{errors.screenshot}</p>}
                     </div>
 
                     {/* Submit Button */}
                     <button
                       type="submit"
-                      disabled={isPending || actorFetching}
-                      className="w-full py-4 rounded-2xl bg-brand-brown text-white font-bold text-base transition-all hover:bg-brand-brown/90 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      disabled={isPending}
+                      className="w-full py-4 rounded-2xl bg-brand-brown text-white font-bold text-base transition-all hover:bg-brand-brown/90 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-cta"
                     >
                       {isPending ? (
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />
-                          Submitting Booking…
+                          Submitting…
                         </>
                       ) : actorFetching ? (
                         <>
@@ -442,10 +419,11 @@ export default function Contact() {
                       )}
                     </button>
 
+                    {/* Connection status note — shown when actor is not yet ready but not actively fetching */}
                     {!isActorReady && !actorFetching && (
-                      <p className="text-xs text-center text-muted-foreground flex items-center justify-center gap-1">
-                        <Wifi className="w-3 h-3" />
-                        Unable to connect. Please refresh the page and try again.
+                      <p className="text-xs text-center text-brand-brown/50 flex items-center justify-center gap-1">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        Initializing connection…
                       </p>
                     )}
                   </form>
@@ -454,53 +432,59 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* Contact Info + Map */}
+          {/* Right Column: Contact Info + Map */}
           <div className="space-y-6">
             {/* Contact Details */}
-            <div className="bg-white rounded-3xl shadow-card p-6 sm:p-8">
-              <h2 className="text-xl font-bold text-brand-brown mb-5">Contact & Location</h2>
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-brand-cream flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-4 h-4 text-brand-brown" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-brand-brown">Address</p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{ADDRESS}</p>
-                    <a
-                      href={MAPS_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-brand-mustard font-semibold mt-1 hover:underline"
-                    >
-                      <Navigation className="w-3 h-3" /> Get Directions
-                    </a>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-brand-cream flex items-center justify-center flex-shrink-0">
-                    <Phone className="w-4 h-4 text-brand-brown" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-brand-brown">Phone</p>
-                    <a href={`tel:${PHONE}`} className="text-sm text-muted-foreground hover:text-brand-brown transition-colors">
-                      {PHONE_DISPLAY}
-                    </a>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-brand-cream flex items-center justify-center flex-shrink-0">
-                    <Clock className="w-4 h-4 text-brand-brown" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-brand-brown">Hours</p>
-                    <p className="text-sm text-muted-foreground">Open daily — 10:00 AM to 10:00 PM</p>
-                  </div>
-                </li>
-              </ul>
+            <div className="bg-white rounded-3xl shadow-card p-6 sm:p-8 space-y-5">
+              <h2 className="text-2xl font-bold text-brand-brown">Contact Us</h2>
+
+              <a
+                href={`tel:${PHONE}`}
+                className="flex items-start gap-4 group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-brand-mustard/20 flex items-center justify-center flex-shrink-0 group-hover:bg-brand-mustard/40 transition-colors">
+                  <Phone className="w-5 h-5 text-brand-brown" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Phone</p>
+                  <p className="font-bold text-brand-brown group-hover:text-brand-red transition-colors">{PHONE_DISPLAY}</p>
+                  <p className="text-xs text-muted-foreground">Tap to call</p>
+                </div>
+              </a>
+
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-brand-mustard/20 flex items-center justify-center flex-shrink-0">
+                  <MapPin className="w-5 h-5 text-brand-brown" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Address</p>
+                  <p className="font-semibold text-brand-brown leading-snug">{ADDRESS}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-brand-mustard/20 flex items-center justify-center flex-shrink-0">
+                  <Clock className="w-5 h-5 text-brand-brown" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5">Hours</p>
+                  <p className="font-semibold text-brand-brown">Mon – Sun: 10:00 AM – 10:00 PM</p>
+                  <p className="text-xs text-muted-foreground">Open all days</p>
+                </div>
+              </div>
+
+              <a
+                href={MAPS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 w-full py-3 px-4 rounded-xl bg-brand-brown text-white font-semibold text-sm hover:bg-brand-brown/90 transition-colors justify-center"
+              >
+                <Navigation className="w-4 h-4" />
+                Get Directions
+              </a>
             </div>
 
-            {/* Map */}
+            {/* Map Embed */}
             <div className="rounded-3xl overflow-hidden shadow-card">
               <iframe
                 src={MAPS_EMBED_URL}
@@ -510,8 +494,27 @@ export default function Contact() {
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Pind Pahadi Restaurant Location"
+                title="Restaurant Location"
               />
+            </div>
+
+            {/* WhatsApp CTA */}
+            <div className="bg-brand-cream rounded-3xl p-6 text-center">
+              <p className="font-bold text-brand-brown mb-1">Prefer WhatsApp?</p>
+              <p className="text-sm text-brand-brown/70 mb-4">
+                Send us a message and we'll confirm your booking instantly.
+              </p>
+              <a
+                href={`https://wa.me/919891142585?text=${encodeURIComponent('Hi! I would like to book a table at Pind Pahadi Restaurant.')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 py-3 px-6 rounded-2xl bg-green-500 text-white font-bold text-sm hover:bg-green-600 transition-colors"
+              >
+                <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+                Chat on WhatsApp
+              </a>
             </div>
           </div>
         </div>

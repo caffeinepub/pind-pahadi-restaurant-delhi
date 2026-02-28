@@ -1,48 +1,31 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Restaurant management app for Pind Pahadi restaurant with admin dashboard at a custom URL. App includes table reservation functionality.",
-  "architectural_notes": [
-    "Admin dashboard accessible at /pindpahadi-manage-2024 path",
-    "Table reservation feature must work cross-device (not just local/same device)"
-  ],
+  "summary": "New project",
+  "architectural_notes": [],
   "known_issues": [
-    "Table reservation fails when accessed from a different device"
+    "Deployment/publish issue: app not publishing successfully to production, backend canister connection errors on booking form"
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-update-all-references-to-the-app-s-public-url-from-pindpahadirestrurent-caffeine-xyz-to-pindpahadirestrurent-caffein-xyz-note-single-e-in-caffein-this-includes-the-canonical-url-meta-tag-in-frontend-index-html-the-open-graph-url-the-json-ld-restaurant-schema-url-and-any-hardcoded-domain-references-across-the-codebase",
-      "title": "Update all references to the app's public URL from 'pindpahadirestrurent.caffeine.xyz' to 'pindpahadirestrurent.caffein.xyz' (note: single 'e' in 'caffein'). This includes the canonical URL meta tag in frontend/index.html, the Open Graph URL, the JSON-LD Restaurant schema URL, and any hardcoded domain references across the codebase.",
+      "id": "feature-fix-the-backend-canister-connection-so-that-the-booking-form-on-the-contact-page-successfully-connects-to-the-backend-without-showing-still-connecting-to-the-server-please-wait-a-moment-and-try-again-errors",
+      "title": "Fix the backend canister connection so that the booking form on the Contact page successfully connects to the backend without showing 'Still connecting to the server. Please wait a moment and try again.' errors.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-fix-the-table-reservation-booking-feature-so-that-it-works-correctly-when-accessed-from-any-device-not-just-the-device-on-which-the-booking-was-originally-initiated-investigate-and-resolve-any-issues-in-the-booking-submission-flow-in-frontend-src-pages-contact-tsx-and-frontend-src-hooks-usequeries-ts-that-could-cause-failures-on-other-devices-such-as-device-specific-actor-initialization-anonymous-identity-mismatches-or-session-actor-not-being-properly-set-up-for-unauthenticated-users-on-a-fresh-device",
-      "title": "Fix the table reservation (booking) feature so that it works correctly when accessed from any device, not just the device on which the booking was originally initiated. Investigate and resolve any issues in the booking submission flow in frontend/src/pages/Contact.tsx and frontend/src/hooks/useQueries.ts that could cause failures on other devices — such as device-specific actor initialization, anonymous identity mismatches, or session/actor not being properly set up for unauthenticated users on a fresh device.",
+      "id": "feature-add-retry-logic-and-a-user-friendly-loading-state-to-the-booking-form-so-that-if-the-backend-canister-takes-a-moment-to-warm-up-after-deployment-the-form-gracefully-retries-the-connection-and-shows-a-friendly-loading-indicator-instead-of-an-error",
+      "title": "Add retry logic and a user-friendly loading state to the booking form so that if the backend canister takes a moment to warm up after deployment, the form gracefully retries the connection and shows a friendly loading indicator instead of an error.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     }
   ],
-  "new_feature_requests": [
-    {
-      "id": "AR-1",
-      "summary": "Change app URL to pindpahadirestrurent.caffein.xyz",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Fix table reservation not working from other devices",
-      "reqIds": [],
-      "status": "pending"
-    }
-  ],
-  "gameProjectType": "none",
+  "new_feature_requests": [],
   "projectName": "Pind Pahadi Restaurant",
   "clarification_mode": "instant",
   "clarification_rounds": 0

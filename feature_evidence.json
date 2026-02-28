@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-all-references-to-the-app-s-public-url-from-pindpahadirestrurent-caffeine-xyz-to-pindpahadirestrurent-caffein-xyz-note-single-e-in-caffein-this-includes-the-canonical-url-meta-tag-in-frontend-index-html-the-open-graph-url-the-json-ld-restaurant-schema-url-and-any-hardcoded-domain-references-across-the-codebase",
-      "featureTitle": "Update all references to the app's public URL from 'pindpahadirestrurent.caffeine.xyz' to 'pindpahadirestrurent.caffein.xyz' (note: single 'e' in 'caffein'). This includes the canonical URL meta tag in frontend/index.html, the Open Graph URL, the JSON-LD Restaurant schema URL, and any hardcoded domain references across the codebase.",
+      "featureId": "feature-fix-the-backend-canister-connection-so-that-the-booking-form-on-the-contact-page-successfully-connects-to-the-backend-without-showing-still-connecting-to-the-server-please-wait-a-moment-and-try-again-errors",
+      "featureTitle": "Fix the backend canister connection so that the booking form on the Contact page successfully connects to the backend without showing 'Still connecting to the server. Please wait a moment and try again.' errors.",
       "files": [
-        "frontend/index.html"
+        "frontend/src/pages/Contact.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -21,8 +21,8 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-fix-the-table-reservation-booking-feature-so-that-it-works-correctly-when-accessed-from-any-device-not-just-the-device-on-which-the-booking-was-originally-initiated-investigate-and-resolve-any-issues-in-the-booking-submission-flow-in-frontend-src-pages-contact-tsx-and-frontend-src-hooks-usequeries-ts-that-could-cause-failures-on-other-devices-such-as-device-specific-actor-initialization-anonymous-identity-mismatches-or-session-actor-not-being-properly-set-up-for-unauthenticated-users-on-a-fresh-device",
-      "featureTitle": "Fix the table reservation (booking) feature so that it works correctly when accessed from any device, not just the device on which the booking was originally initiated. Investigate and resolve any issues in the booking submission flow in frontend/src/pages/Contact.tsx and frontend/src/hooks/useQueries.ts that could cause failures on other devices — such as device-specific actor initialization, anonymous identity mismatches, or session/actor not being properly set up for unauthenticated users on a fresh device.",
+      "featureId": "feature-add-retry-logic-and-a-user-friendly-loading-state-to-the-booking-form-so-that-if-the-backend-canister-takes-a-moment-to-warm-up-after-deployment-the-form-gracefully-retries-the-connection-and-shows-a-friendly-loading-indicator-instead-of-an-error",
+      "featureTitle": "Add retry logic and a user-friendly loading state to the booking form so that if the backend canister takes a moment to warm up after deployment, the form gracefully retries the connection and shows a friendly loading indicator instead of an error.",
       "files": [
         "frontend/src/hooks/useQueries.ts",
         "frontend/src/pages/Contact.tsx"

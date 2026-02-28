@@ -1,15 +1,13 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-27T19:05:35.641Z",
-  "summary": "Both REQ-1 and REQ-2 appear to be implemented. REQ-1 is addressed by updating frontend/index.html with the corrected domain in canonical, og:url, JSON-LD @id, url, and hasMenu fields. REQ-2 is addressed by adding retry logic in useQueries.ts, exposing actorFetching state, and updating Contact.tsx to show a Connecting banner and disable submission while the actor initializes. The backend submitBooking function is also made caller-agnostic with no auth check. No significant missing requirements or hallucinated features detected.",
+  "generatedAt": "2026-02-28T03:02:42.657Z",
+  "summary": "The diff implements retry logic in useQueries.ts and connection state handling in Contact.tsx, along with an enhanced useActor.ts hook. Both REQ-1 and REQ-2 appear to be addressed: the actor initialization is fixed with retry/backoff logic, and the Contact page shows a connecting banner with friendly error messages. All acceptance criteria appear to be covered.",
   "missing_requirements": [],
   "hallucinated_features": [],
-  "confidence": 0.91,
+  "confidence": 0.82,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/index.html",
     "frontend/src/hooks/useQueries.ts",
     "frontend/src/pages/Contact.tsx",
     "project_state.json"

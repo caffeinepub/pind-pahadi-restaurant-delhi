@@ -1,59 +1,56 @@
 {
   "kind": "build_request",
-  "title": "Fix cross-device table reservation and update canonical URL",
+  "title": "Fix deployment and backend connection issues",
   "projectName": "Pind Pahadi Restaurant",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update all references to the app's public URL from 'pindpahadirestrurent.caffeine.xyz' to 'pindpahadirestrurent.caffein.xyz' (note: single 'e' in 'caffein'). This includes the canonical URL meta tag in frontend/index.html, the Open Graph URL, the JSON-LD Restaurant schema URL, and any hardcoded domain references across the codebase.",
-      "target": "frontend",
+      "text": "Fix the backend canister connection so that the booking form on the Contact page successfully connects to the backend without showing 'Still connecting to the server. Please wait a moment and try again.' errors.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-recent"
         ],
         "quotes": [
-          "change url to pindpahadirestrurent.caffein.xyz"
+          "Still connecting to the server. Please wait a moment and try again.",
+          "it no publish"
         ]
       },
       "acceptanceCriteria": [
-        "The canonical URL in index.html points to https://pindpahadirestrurent.caffein.xyz",
-        "Open Graph og:url meta tag uses the new domain",
-        "JSON-LD Restaurant schema URL uses the new domain",
-        "No remaining references to the old 'caffeine.xyz' domain exist in the frontend source files"
+        "The booking form on the Contact page loads without any connection error messages",
+        "Submitting the booking form successfully sends data to the backend canister",
+        "The backend actor initializes correctly on page load without requiring manual refresh"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Fix the table reservation (booking) feature so that it works correctly when accessed from any device, not just the device on which the booking was originally initiated. Investigate and resolve any issues in the booking submission flow in frontend/src/pages/Contact.tsx and frontend/src/hooks/useQueries.ts that could cause failures on other devices — such as device-specific actor initialization, anonymous identity mismatches, or session/actor not being properly set up for unauthenticated users on a fresh device.",
-      "target": "both",
+      "text": "Add retry logic and a user-friendly loading state to the booking form so that if the backend canister takes a moment to warm up after deployment, the form gracefully retries the connection and shows a friendly loading indicator instead of an error.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-recent"
         ],
         "quotes": [
-          "there is problem in reserving table from other device pls correct this"
+          "The canister may still be warming up after the latest deployment"
         ]
       },
       "acceptanceCriteria": [
-        "A user on any device (mobile or desktop, any browser) can open the Contact/Book Table page and submit a reservation without errors",
-        "The booking submission does not depend on any device-local session state or previously cached actor",
-        "Submitted bookings from any device appear correctly in the admin dashboard",
-        "The anonymous actor is correctly initialized for unauthenticated booking submissions on fresh devices",
-        "Error messages, if any, are informative and actionable for the user"
+        "The booking form shows a loading spinner or 'Connecting...' message while the backend actor is initializing",
+        "The form automatically retries connecting to the backend at least 3 times before showing an error",
+        "Error messages are user-friendly and suggest refreshing if the connection ultimately fails"
       ]
     }
   ],
   "constraints": [
-    "Do not change the admin route path or password",
-    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
-    "Preserve all existing booking data in the backend"
+    "Do not change the existing booking form fields or UPI payment screenshot upload functionality",
+    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts or frontend/src/main.tsx",
+    "Preserve all existing restaurant branding, color palette, and design"
   ],
   "nonGoals": [
-    "Redesigning the reservation form UI",
-    "Adding new reservation fields or features",
-    "Changing the admin dashboard functionality",
-    "Modifying the payment/UPI deposit flow"
+    "Redesigning any pages or UI components",
+    "Adding new features to the booking system",
+    "Changing the admin dashboard functionality"
   ],
   "imageRequirements": {
     "required": [],
